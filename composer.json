@@ -1,0 +1,22 @@
+{
+  "name": "ueb/route",
+  "description": "Controle de rotas e acesso ao sistema uebster",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Edinei J. Bauer",
+      "email": "edineibauer@gmail.com"
+    }
+  ],
+  "require": {
+    "php": "^7.1",
+    "ueb/helpers": "*",
+    "matthiasmullie/minify": "1.3.*"
+  },
+  "autoload": {
+    "psr-0": {
+      "LinkControl": "public/src/"
+    }
+  }
+}

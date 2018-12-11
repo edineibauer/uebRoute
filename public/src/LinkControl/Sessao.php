@@ -2,7 +2,7 @@
 
 namespace Route;
 
-use \ConnCrud\TableCrud;
+use \Conn\TableCrud;
 
 class Sessao
 {

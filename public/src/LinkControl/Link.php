@@ -8,7 +8,7 @@
 
 namespace Route;
 
-use ConnCrud\Read;
+use Conn\Read;
 use Dashboard\UpdateDashboard;
 use Entity\Dicionario;
 use Helpers\Helper;

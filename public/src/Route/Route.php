@@ -8,9 +8,6 @@
 
 namespace Route;
 
-use Helpers\Helper;
-use Helpers\Check;
-
 class Route
 {
     private $directory;

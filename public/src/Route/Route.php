@@ -125,26 +125,18 @@ class Route
      */
     private function getRouteFolders()
     {
+        $rotas = \Config\Config::getViewPermissoes();
         $libsPath[] = [DOMINIO => "public/{$this->directory}"];
         if (!empty($_SESSION['userlogin'])) {
             $libsPath[][DOMINIO] = "public/{$this->directory}/{$_SESSION['userlogin']['setor']}";
             $libsPath = array_merge($libsPath, array_map(function ($class) {
                 return [$class => VENDOR . $class . "/public/{$this->directory}/{$_SESSION['userlogin']['setor']}"];
-            }, $this->getRouteFile()));
+            }, $rotas));
         }
         $libsPath = array_merge($libsPath, array_map(function ($class) {
             return [$class => VENDOR . $class . "/public/{$this->directory}"];
-        }, $this->getRouteFile()));
+        }, $rotas));
 
         return $libsPath;
-    }
-
-    /**
-     * Retorna rotas aceitas nas libs do vendor
-     * @return array
-     */
-    private function getRouteFile(): array
-    {
-        return file_exists(PATH_HOME . "_config/route.json") ? json_decode(file_get_contents(PATH_HOME . "_config/route.json"), true) : [];
     }
 }

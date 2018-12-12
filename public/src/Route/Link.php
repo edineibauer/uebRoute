@@ -9,7 +9,7 @@
 namespace Route;
 
 use Conn\Read;
-use Dashboard\UpdateDashboard;
+use Config\UpdateSystem;
 use Entity\Dicionario;
 use Helpers\Helper;
 use MatthiasMullie\Minify;
@@ -40,7 +40,7 @@ class Link
 
         /* Se não existir os assets Core, cria eles */
         if (!file_exists(PATH_HOME . "assetsPublic/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/core.min.css"))
-            new UpdateDashboard(['assets']);
+            new UpdateSystem(['assets']);
 
         if (!file_exists(PATH_HOME . "assetsPublic/view/{$file}.min.js") || !file_exists(PATH_HOME . "assetsPublic/view/{$file}.min.css")) {
             if (!empty($this->param['js']) || !empty($this->param['css'])) {

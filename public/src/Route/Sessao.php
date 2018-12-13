@@ -11,11 +11,8 @@ class Sessao
         if (session_status() == PHP_SESSION_NONE)
             session_start();
 
-        if (class_exists('\Login\Login')) {
-            //Cookie Operations
-            if (isset($_COOKIE['token']) && empty($_SESSION['userlogin']))
-                $this->cookieLogin();
-        }
+        if (class_exists('\Login\Login') && isset($_COOKIE['token']) && empty($_SESSION['userlogin']))
+            $this->cookieLogin();
     }
 
     /**

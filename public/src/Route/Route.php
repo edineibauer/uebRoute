@@ -14,7 +14,7 @@ class Route
     private $route;
     private $lib;
     private $file;
-    private $var;
+    private $variaveis;
 
     /**
      * Route constructor.
@@ -24,7 +24,7 @@ class Route
     public function __construct(string $url = null, string $dir = null)
     {
         $this->directory = $dir ?? "view";
-        $this->var = [];
+        $this->variaveis = [];
         if (!$url)
             $url = strip_tags(trim(filter_input(INPUT_GET, 'url', FILTER_DEFAULT)));
         else
@@ -34,11 +34,11 @@ class Route
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function getVar()
+    public function getVariaveis(): array
     {
-        return $this->var;
+        return $this->variaveis ?? [];
     }
 
     /**
@@ -66,6 +66,38 @@ class Route
     }
 
     /**
+     * @param mixed $file
+     */
+    protected function setFile($file)
+    {
+        $this->file = $file;
+    }
+
+    /**
+     * @param mixed $lib
+     */
+    protected function setLib($lib)
+    {
+        $this->lib = $lib;
+    }
+
+    /**
+     * @param mixed $route
+     */
+    protected function setRoute($route)
+    {
+        $this->route = $route;
+    }
+
+    /**
+     * @param array $variaveis
+     */
+    protected function setVariaveis(array $variaveis)
+    {
+        $this->variaveis = $variaveis;
+    }
+
+    /**
      * @param string $url
      */
     private function searchRoute(string $url)
@@ -81,17 +113,13 @@ class Route
     private function searchFile(array $paths, array $listFolder)
     {
         if (count($paths) === 1) {
-            if (!$this->route = $this->findRoute($paths[0], $listFolder)) {
-                if (!$this->route = $this->findRoute("404", $listFolder)) {
-                    var_dump("Erro: Página não encontrada! Crie o arquivo 'view/404.php' para personalizar este erro");
-                    die;
-                }
-            }
+            if (!$this->route = $this->findRoute($paths[0], $listFolder))
+                $this->route = $this->findRoute("404", $listFolder);
         } else {
 
             $path = implode('/', $paths);
             if (!$this->route = $this->findRoute($path, $listFolder)) {
-                $this->var[] = array_pop($paths);
+                $this->variaveis[] = array_pop($paths);
                 $this->searchFile($paths, $listFolder);
             }
         }

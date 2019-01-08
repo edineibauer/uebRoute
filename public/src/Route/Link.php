@@ -32,11 +32,11 @@ class Link extends Route
         if(!empty($this->param['setor']) && (empty($_SESSION['userlogin']['setor']) || (is_numeric($this->param['setor']) && $this->param['setor'] < $_SESSION['userlogin']['setor']) || (is_array($this->param['setor']) && !in_array($_SESSION['userlogin']['setor'], $this->param['setor'])))){
 
             //usuário não tem permissão de acesso a esta rota, retorna 404
-            $l = new Link('404');
+            $l = new Link('403');
             $this->param = $l->getParam();
             parent::setFile($l->getFile());
             parent::setLib($l->getLib());
-            parent::setRoute($l->getRoute());
+            parent::setRoute(str_replace(PATH_HOME, '', $l->getRoute()));
             parent::setVariaveis($l->getVariaveis());
 
         } else {

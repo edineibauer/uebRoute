@@ -109,12 +109,15 @@ class Route
     /**
      * Busca por File
      * @param array $paths
+     * @param array $listFolder
      */
     private function searchFile(array $paths, array $listFolder)
     {
         if (count($paths) === 1) {
-            if (!$this->route = $this->findRoute($paths[0], $listFolder))
-                $this->route = $this->findRoute("404", $listFolder);
+            if (!$this->route = $this->findRoute($paths[0], $listFolder)){
+                $this->directory = "view";
+                $this->route = $this->findRoute("404", $this->getRouteFolders());
+            }
         } else {
 
             $path = implode('/', $paths);

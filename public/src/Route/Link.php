@@ -20,6 +20,8 @@ class Link extends Route
 
     /**
      * Link constructor.
+     * @param string|null $url
+     * @param string|null $dir
      */
     function __construct(string $url = null, string $dir = null)
     {

@@ -59,8 +59,5 @@ class Sessao
             $token->token_expira = null;
             $token->save();
         }
-
-        //remove cookie
-        setcookie("token", 0, time() - 1, "/");
     }
 }

@@ -3,6 +3,8 @@
 namespace Route;
 
 use \Conn\TableCrud;
+use Entity\Dicionario;
+use Login\Login;
 
 class Sessao
 {
@@ -11,7 +13,7 @@ class Sessao
         if (session_status() == PHP_SESSION_NONE)
             session_start();
 
-        if (class_exists('\Login\Login') && isset($_COOKIE['token']) && empty($_SESSION['userlogin']))
+        if (empty($_SESSION['userlogin']) && isset($_COOKIE['token']) && $_COOKIE['token'] !== "0")
             $this->cookieLogin();
     }
 
@@ -25,39 +27,16 @@ class Sessao
         $token->load("token", $_COOKIE['token']);
         if ($token->exist() && $token->status === 1 && $token->token_expira > $beforeDate) {
 
-            //Obtém os dados de login
-            $_SESSION['userlogin'] = $token->getDados();
+            $dados = $token->getDados();
+            $dic = new Dicionario("usuarios");
+            $email = $dic->searchSemantic('email')->getColumn();
+            $pass = $dic->searchSemantic('password')->getColumn();
 
-            //Atualiza tempo de expiração do Token no banco
-            $token->token_expira = date("Y-m-d H:i:s");
-            $token->save();
-
-            //seta cookies para 2 meses de validade
-            setcookie("token", $token, time() + (86400 * 30 * 3), "/"); // 2 meses de cookie
-
-            //redireciona para dashboard
-            header("Location: " . HOME . "dashboard");
-
+            $login = new Login(["email" => $dados[$email], "password" => $dados[$pass]]);
         } else {
 
-            //remove cookie não integro
-            $this->unsetCookie();
-        }
-    }
-
-    /**
-     * Remover Cookie
-     */
-    private function unsetCookie()
-    {
-        $token = new TableCrud("usuarios");
-        $token->load("token", $_COOKIE['token']);
-        if ($token->exist()) {
-
-            //Remove token da base de dados
-            $token->token = null;
-            $token->token_expira = null;
-            $token->save();
+            $login = new Login();
+            $login->logOut();
         }
     }
 }

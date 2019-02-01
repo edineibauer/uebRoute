@@ -2,7 +2,7 @@
 
 namespace Route;
 
-use \Conn\TableCrud;
+use Conn\Read;
 use Entity\Dicionario;
 use Login\Login;
 
@@ -13,8 +13,32 @@ class Sessao
         if (session_status() == PHP_SESSION_NONE)
             session_start();
 
-        if (empty($_SESSION['userlogin']) && isset($_COOKIE['token']) && $_COOKIE['token'] !== "0")
+        if (empty($_SESSION['userlogin']['token']) && isset($_COOKIE['token']) && $_COOKIE['token'] !== "0") {
+            //não tenho sessão, mas tenho cookies
             $this->cookieLogin();
+
+        } else if (!empty($_SESSION['userlogin']['token']) && $_COOKIE['token'] === "0") {
+            //não tenho cookies, mas tenho sessao
+            $this->sessionLogin();
+
+        } else if (!empty($_SESSION['userlogin']['token']) && isset($_COOKIE['token']) && $_COOKIE['token'] !== $_SESSION['userlogin']['token']) {
+            //tenho ambos, cookie e login, mas são diferentes
+            $login = new Login();
+            $login->logOut();
+        }
+    }
+
+    private function sessionLogin()
+    {
+        $read = new Read();
+        $login = new Login();
+        $prazoTokenExpira = date('Y-m-d H:i:s', strtotime("-2 months", strtotime(date("Y-m-d H:i:s"))));
+        $read->exeRead("usuarios", "WHERE token = :to", "to={$_SESSION['userlogin']['token']}");
+
+        if ($read->getResult() && $read->getResult()[0]['status'] === 1 && $read->getResult()[0]['token_expira'] > $prazoTokenExpira)
+            $login->setLogin($read->getResult()[0]);
+        else
+            $login->logOut();
     }
 
     /**
@@ -22,21 +46,14 @@ class Sessao
      */
     private function cookieLogin()
     {
-        $beforeDate = date('Y-m-d H:i:s', strtotime("-2 months", strtotime(date("Y-m-d H:i:s"))));
-        $token = new TableCrud("usuarios");
-        $token->load("token", $_COOKIE['token']);
-        if ($token->exist() && $token->status === 1 && $token->token_expira > $beforeDate) {
+        $read = new Read();
+        $login = new Login();
+        $prazoTokenExpira = date('Y-m-d H:i:s', strtotime("-2 months", strtotime(date("Y-m-d H:i:s"))));
+        $read->exeRead("usuarios", "WHERE token = :to", "to={$_COOKIE['token']}");
 
-            $dados = $token->getDados();
-            $dic = new Dicionario("usuarios");
-            $email = $dic->searchSemantic('email')->getColumn();
-            $pass = $dic->searchSemantic('password')->getColumn();
-
-            $login = new Login(["email" => $dados[$email], "password" => $dados[$pass]]);
-        } else {
-
-            $login = new Login();
+        if ($read->getResult() && $read->getResult()[0]['status'] === 1 && $read->getResult()[0]['token_expira'] > $prazoTokenExpira)
+            $login->setLogin($read->getResult()[0]);
+        else
             $login->logOut();
-        }
     }
 }

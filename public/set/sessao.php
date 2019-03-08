@@ -10,7 +10,7 @@ if (isset($_SESSION['userlogin']) && !empty($_SESSION['userlogin']['token'])) {
     $read->exeRead("usuarios", "WHERE token = :to", "to={$_SESSION['userlogin']['token']}");
     if ($read->getResult() && $read->getResult()[0]['status'] === "1" && $read->getResult()[0]['token_expira'] > $prazoTokenExpira) {
         $data['data'] = $_SESSION['userlogin'];
-        $data['data']['setor'] = $data['data']['setor']['entity'];
+        $data['data']['setor'] = $data['data']['setor']['entity'] ?? "";
     } else {
         $login->logout();
     }

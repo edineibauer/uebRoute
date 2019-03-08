@@ -31,64 +31,51 @@ class Link extends Route
         $this->param = $this->getBaseParam(parent::getFile(), $pathFile);
 
         //verifica se possui restrição de acesso por setor nesta rota
-        if(!empty($this->param['setor']) && (empty($_SESSION['userlogin']['setor']) || (is_numeric($this->param['setor']) && $this->param['setor'] < $_SESSION['userlogin']['setor']) || (is_array($this->param['setor']) && !in_array($_SESSION['userlogin']['setor'], $this->param['setor'])))){
+        $this->param['data'] = $this->readData(parent::getFile());
 
-            //usuário não tem permissão de acesso a esta rota, retorna 404
-            $l = new Link('403');
-            $this->param = $l->getParam();
-            parent::setFile($l->getFile());
-            parent::setLib($l->getLib());
-            parent::setRoute(str_replace(PATH_HOME, '', $l->getRoute()));
-            parent::setVariaveis($l->getVariaveis());
+        if (empty($this->param['title']))
+            $this->param['title'] = $this->getTitle(parent::getFile());
+        else
+            $this->param['title'] = $this->prepareTitle($this->param['title'], parent::getFile());
 
-        } else {
+        /* Se não existir os assets Core, cria eles */
+        if (!file_exists(PATH_HOME . "assetsPublic/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/core.min.css"))
+            new UpdateSystem(['assets']);
 
-            $this->param['data'] = $this->readData(parent::getFile());
-
-            if (empty($this->param['title']))
-                $this->param['title'] = $this->getTitle(parent::getFile());
-            else
-                $this->param['title'] = $this->prepareTitle($this->param['title'], parent::getFile());
-
-            /* Se não existir os assets Core, cria eles */
-            if (!file_exists(PATH_HOME . "assetsPublic/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/core.min.css"))
-                new UpdateSystem(['assets']);
-
-            if (!file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js") || !file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css")) {
-                if (!empty($this->param['js']) || !empty($this->param['css'])) {
-                    $list = implode('/', array_unique(array_merge((is_array($this->param['js']) ? $this->param['js'] : []), (is_array($this->param['css']) ? $this->param['css'] : []))));
-                    $data = json_decode(file_get_contents(REPOSITORIO . "app/library/{$list}"), true);
-                    $data = $data['response'] === 1 && !empty($data['data']) ? $data['data'] : [];
-                } else {
-                    $data = [];
-                }
-
-                Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
-                Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view");
-
-                /* Se não existir os assets View, cria eles */
-                if (!file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js"))
-                    $this->createPageJs(parent::getFile(), $data, $pathFile);
-
-                /* Se não existir os assets View, cria eles */
-                if (!file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css"))
-                    $this->createPageCss(parent::getFile(), $data, $pathFile);
-
-                /* Se não existir os assets de Imagem, cria eles*/
-                if (!file_exists(PATH_HOME . "assetsPublic/img/" . parent::getFile() . ""))
-                    $this->createImagens(parent::getFile(), $data, $pathFile);
+        if (!file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js") || !file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css")) {
+            if (!empty($this->param['js']) || !empty($this->param['css'])) {
+                $list = implode('/', array_unique(array_merge((is_array($this->param['js']) ? $this->param['js'] : []), (is_array($this->param['css']) ? $this->param['css'] : []))));
+                $data = json_decode(file_get_contents(REPOSITORIO . "app/library/{$list}"), true);
+                $data = $data['response'] === 1 && !empty($data['data']) ? $data['data'] : [];
+            } else {
+                $data = [];
             }
 
-            /* Adiciona o arquivo css da view na variável */
-            $this->param['css'] = file_get_contents(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css");
-            $this->param['js'] = HOME . "assetsPublic/view/" . parent::getFile() . ".min.js";
-            $this->param["vendor"] = VENDOR;
-            $this->param["url"] = parent::getFile() . (!empty(parent::getVariaveis()) ? "/" . implode('/', parent::getVariaveis()) : "");
-            $this->param['loged'] = !empty($_SESSION['userlogin']);
-            $this->param['login'] = ($this->param['loged'] ? $_SESSION['userlogin'] : "");
-            $this->param['email'] = defined("EMAIL") && !empty(EMAIL) ? EMAIL : "contato@" . DOMINIO;
-            $this->param['menu'] = "";
+            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic");
+            Helper::createFolderIfNoExist(PATH_HOME . "assetsPublic/view");
+
+            /* Se não existir os assets View, cria eles */
+            if (!file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js"))
+                $this->createPageJs(parent::getFile(), $data, $pathFile);
+
+            /* Se não existir os assets View, cria eles */
+            if (!file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css"))
+                $this->createPageCss(parent::getFile(), $data, $pathFile);
+
+            /* Se não existir os assets de Imagem, cria eles*/
+            if (!file_exists(PATH_HOME . "assetsPublic/img/" . parent::getFile() . ""))
+                $this->createImagens(parent::getFile(), $data, $pathFile);
         }
+
+        /* Adiciona o arquivo css da view na variável */
+        $this->param['css'] = file_get_contents(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css");
+        $this->param['js'] = HOME . "assetsPublic/view/" . parent::getFile() . ".min.js";
+        $this->param["vendor"] = VENDOR;
+        $this->param["url"] = parent::getFile() . (!empty(parent::getVariaveis()) ? "/" . implode('/', parent::getVariaveis()) : "");
+        $this->param['loged'] = !empty($_SESSION['userlogin']);
+        $this->param['login'] = ($this->param['loged'] ? $_SESSION['userlogin'] : "");
+        $this->param['email'] = defined("EMAIL") && !empty(EMAIL) ? EMAIL : "contato@" . DOMINIO;
+        $this->param['menu'] = "";
     }
 
     /**

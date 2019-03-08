@@ -35,7 +35,7 @@ class Sessao
         $read->exeRead("usuarios", "WHERE token = :to", "to={$_COOKIE['token']}");
 
         if ($read->getResult() && $read->getResult()[0]['status'] === 1 && $read->getResult()[0]['token_expira'] > $prazoTokenExpira)
-            $login->setLogin($read->getResult()[0]);
+            $login->setLogin(["user" => $read->getResult()[0]['nome'], "password" => $read->getResult()[0]['password']]);
         else
             $login->logOut();
     }

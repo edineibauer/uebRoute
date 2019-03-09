@@ -29,15 +29,34 @@ class Link extends Route
 
         $pathFile = (parent::getLib() === DOMINIO ? "public/" : VENDOR . parent::getLib() . "/public/");
         $this->param = $this->getBaseParam(parent::getFile(), $pathFile);
-
-        //verifica se possui restrição de acesso por setor nesta rota
         $this->param['data'] = $this->readData(parent::getFile());
 
-        if (empty($this->param['title']))
-            $this->param['title'] = $this->getTitle(parent::getFile());
-        else
-            $this->param['title'] = $this->prepareTitle($this->param['title'], parent::getFile());
+        if($this->haveAccessPermission()) {
+            $this->checkAssetsExist();
+            $this->createParamResponse();
+        } else {
+            $this::__construct("403");
+        }
+    }
 
+    private function createParamResponse()
+    {
+        $this->param['title'] = (empty($this->param['title']) ? $this->getTitle(parent::getFile()) : $this->prepareTitle($this->param['title'], parent::getFile()));
+        $this->param['css'] = file_get_contents(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css");
+        $this->param['js'] = HOME . "assetsPublic/view/" . parent::getFile() . ".min.js";
+        $this->param['setor'] = $this->param['setor'];
+        $this->param['!setor'] = $this->param['!setor'];
+        $this->param["vendor"] = VENDOR;
+        $this->param["url"] = parent::getFile() . (!empty(parent::getVariaveis()) ? "/" . implode('/', parent::getVariaveis()) : "");
+        $this->param['loged'] = !empty($_SESSION['userlogin']);
+        $this->param['login'] = ($this->param['loged'] ? $_SESSION['userlogin'] : "");
+        $this->param['email'] = defined("EMAIL") && !empty(EMAIL) ? EMAIL : "contato@" . DOMINIO;
+        $this->param['menu'] = "";
+    }
+
+
+    private function checkAssetsExist()
+    {
         /* Se não existir os assets Core, cria eles */
         if (!file_exists(PATH_HOME . "assetsPublic/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/core.min.css"))
             new UpdateSystem(['assets']);
@@ -66,16 +85,41 @@ class Link extends Route
             if (!file_exists(PATH_HOME . "assetsPublic/img/" . parent::getFile() . ""))
                 $this->createImagens(parent::getFile(), $data, $pathFile);
         }
+    }
 
-        /* Adiciona o arquivo css da view na variável */
-        $this->param['css'] = file_get_contents(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css");
-        $this->param['js'] = HOME . "assetsPublic/view/" . parent::getFile() . ".min.js";
-        $this->param["vendor"] = VENDOR;
-        $this->param["url"] = parent::getFile() . (!empty(parent::getVariaveis()) ? "/" . implode('/', parent::getVariaveis()) : "");
-        $this->param['loged'] = !empty($_SESSION['userlogin']);
-        $this->param['login'] = ($this->param['loged'] ? $_SESSION['userlogin'] : "");
-        $this->param['email'] = defined("EMAIL") && !empty(EMAIL) ? EMAIL : "contato@" . DOMINIO;
-        $this->param['menu'] = "";
+    /**
+     * @return bool
+     */
+    private function haveAccessPermission(): bool
+    {
+        $allow = !0;
+        $mySetor = (!empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0");
+        if(isset($this->param['setor']) && (!empty($this->param['setor']) || $this->param['setor'] == '0')) {
+            $allow = !1;
+            if(is_array($this->param['setor'])) {
+                foreach ($this->param['setor'] as $seto) {
+                    if(is_string($seto) && $seto === $mySetor) {
+                        $allow = !0;
+                        return !1;
+                    }
+                }
+            } elseif(is_string($this->param['setor']) && $this->param['setor'] === $mySetor) {
+                $allow = !0;
+            }
+        } elseif(isset($this->param['!setor']) && (!empty($this->param['!setor']) || $this->param['!setor'] == '0')) {
+            if(is_array($this->param['!setor'])) {
+                foreach ($this->param['!setor'] as $seto) {
+                    if(is_string($seto) && $seto === $mySetor) {
+                        $allow = !1;
+                        break;
+                    }
+                }
+            } elseif(is_string($this->param['!setor']) && $this->param['!setor'] === $mySetor) {
+                $allow = !1;
+            }
+        }
+
+        return $allow;
     }
 
     /**
@@ -222,6 +266,8 @@ class Link extends Route
             "font" => "",
             "descricao" => "",
             "data" => 0,
+            "setor" => "",
+            "!setor" => "",
             "analytics" => defined("ANALYTICS") ? ANALYTICS : ""
         ];
 

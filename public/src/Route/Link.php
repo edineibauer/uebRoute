@@ -32,7 +32,7 @@ class Link extends Route
         $this->param['data'] = $this->readData(parent::getFile());
 
         if($this->haveAccessPermission()) {
-            $this->checkAssetsExist();
+            $this->checkAssetsExist($pathFile);
             $this->createParamResponse();
         } else {
             $this::__construct("403");
@@ -54,8 +54,10 @@ class Link extends Route
         $this->param['menu'] = "";
     }
 
-
-    private function checkAssetsExist()
+    /**
+     * @param string $pathFile
+     */
+    private function checkAssetsExist(string $pathFile)
     {
         /* Se não existir os assets Core, cria eles */
         if (!file_exists(PATH_HOME . "assetsPublic/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/core.min.css"))

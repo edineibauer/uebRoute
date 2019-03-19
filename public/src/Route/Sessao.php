@@ -5,6 +5,7 @@ namespace Route;
 use Conn\Read;
 use Entity\Dicionario;
 use Login\Login;
+use Login\Logout;
 
 class Sessao
 {
@@ -19,8 +20,7 @@ class Sessao
 
         } else if (!empty($_SESSION['userlogin']['token']) && isset($_COOKIE['token']) && $_COOKIE['token'] !== $_SESSION['userlogin']['token']) {
             //tenho ambos, cookie e login, mas são diferentes
-            $login = new Login();
-            $login->logOut();
+            new Logout();
         }
     }
 
@@ -30,13 +30,14 @@ class Sessao
     private function cookieLogin()
     {
         $read = new Read();
-        $login = new Login();
         $prazoTokenExpira = date('Y-m-d H:i:s', strtotime("-2 months", strtotime(date("Y-m-d H:i:s"))));
         $read->exeRead("usuarios", "WHERE token = :to", "to={$_COOKIE['token']}");
 
-        if ($read->getResult() && $read->getResult()[0]['status'] === 1 && $read->getResult()[0]['token_expira'] > $prazoTokenExpira)
+        if ($read->getResult() && $read->getResult()[0]['status'] === 1 && $read->getResult()[0]['token_expira'] > $prazoTokenExpira) {
+            $login = new Login();
             $login->setLogin(["user" => $read->getResult()[0]['nome'], "password" => $read->getResult()[0]['password']]);
-        else
-            $login->logOut();
+        } else {
+            new Logout();
+        }
     }
 }

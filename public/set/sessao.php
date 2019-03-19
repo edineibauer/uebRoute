@@ -1,9 +1,7 @@
 <?php
 
 use Conn\Read;
-use Login\Login;
 
-$login = new Login();
 if (isset($_SESSION['userlogin']) && !empty($_SESSION['userlogin']['token'])) {
     $read = new Read();
     $prazoTokenExpira = date('Y-m-d H:i:s', strtotime("-2 months", strtotime(date("Y-m-d H:i:s"))));
@@ -12,8 +10,8 @@ if (isset($_SESSION['userlogin']) && !empty($_SESSION['userlogin']['token'])) {
         $data['data'] = $_SESSION['userlogin'];
         $data['data']['setor'] = $data['data']['setor'] ?? "";
     } else {
-        $login->logout();
+        new Logout();
     }
 } else {
-    $login->logout();
+    new Logout();
 }

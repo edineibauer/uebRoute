@@ -1,6 +1,7 @@
 <?php
 
 use Conn\Read;
+use Login\Logout;
 
 if (isset($_SESSION['userlogin']) && !empty($_SESSION['userlogin']['token'])) {
     $read = new Read();

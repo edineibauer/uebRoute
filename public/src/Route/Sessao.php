@@ -33,9 +33,8 @@ class Sessao
         $prazoTokenExpira = date('Y-m-d H:i:s', strtotime("-2 months", strtotime(date("Y-m-d H:i:s"))));
         $read->exeRead("usuarios", "WHERE token = :to", "to={$_COOKIE['token']}");
 
-        if ($read->getResult() && $read->getResult()[0]['status'] === 1 && $read->getResult()[0]['token_expira'] > $prazoTokenExpira) {
-            $login = new Login();
-            $login->setLogin(["user" => $read->getResult()[0]['nome'], "password" => $read->getResult()[0]['password']]);
+        if ($read->getResult() && $read->getResult()[0]['status'] == 1 && $read->getResult()[0]['token_expira'] > $prazoTokenExpira) {
+            new Login(["user" => $read->getResult()[0]['nome'], "password" => $read->getResult()[0]['password']]);
         } else {
             new Logout();
         }

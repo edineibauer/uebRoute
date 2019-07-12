@@ -197,6 +197,23 @@ class Link extends Route
         elseif (file_exists(PATH_HOME . $pathFile . "assets/{$name}.js"))
             $minifier->add(file_get_contents(PATH_HOME . $pathFile . "assets/{$name}.js"));
 
+        /**
+         * Busca Sistemas que tenham assets nessa página
+         */
+        if (file_exists(PATH_HOME . "public/assets/{$name}.js"))
+            $minifier->add(file_get_contents(PATH_HOME . "public/assets/{$name}.js"));
+        elseif (file_exists(PATH_HOME . "public/assets/{$name}.min.js"))
+            $minifier->add(file_get_contents(PATH_HOME . "public/assets/{$name}.min.js"));
+
+        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+            if(file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/_config/") && (file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.js") || file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.min.js"))) {
+                if (file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.min.js"))
+                    $minifier->add(file_get_contents(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.min.js"));
+                else
+                    $minifier->add(file_get_contents(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.js"));
+            }
+        }
+
         $minifier->minify(PATH_HOME . "assetsPublic/view/{$name}.min.js");
     }
 
@@ -233,6 +250,23 @@ class Link extends Route
             $minifier->add(file_get_contents(PATH_HOME . $pathFile . "assets/{$name}.css"));
         elseif (file_exists(PATH_HOME . $pathFile . "assets/{$name}.min.css"))
             $minifier->add(file_get_contents(PATH_HOME . $pathFile . "assets/{$name}.min.css"));
+
+        /**
+         * Busca Sistemas que tenham assets nessa página
+         */
+        if (file_exists(PATH_HOME . "public/assets/{$name}.css"))
+            $minifier->add(file_get_contents(PATH_HOME . "public/assets/{$name}.css"));
+        elseif (file_exists(PATH_HOME . "public/assets/{$name}.min.css"))
+            $minifier->add(file_get_contents(PATH_HOME . "public/assets/{$name}.min.css"));
+
+        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+            if(file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/_config/") && (file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.css") || file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.min.css"))) {
+                if (file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.min.css"))
+                    $minifier->add(file_get_contents(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.min.css"));
+                else
+                    $minifier->add(file_get_contents(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.css"));
+            }
+        }
 
         $minifier->minify(PATH_HOME . "assetsPublic/view/{$name}.min.css");
 

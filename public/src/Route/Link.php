@@ -254,11 +254,6 @@ class Link extends Route
         /**
          * Busca Sistemas que tenham assets nessa página
          */
-        if (file_exists(PATH_HOME . "public/assets/{$name}.css"))
-            $minifier->add(file_get_contents(PATH_HOME . "public/assets/{$name}.css"));
-        elseif (file_exists(PATH_HOME . "public/assets/{$name}.min.css"))
-            $minifier->add(file_get_contents(PATH_HOME . "public/assets/{$name}.min.css"));
-
         foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
             if(file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/_config/") && (file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.css") || file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.min.css"))) {
                 if (file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.min.css"))

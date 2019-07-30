@@ -15,7 +15,7 @@ function sessionEnd() {
         unset($_SESSION['userlogin']);
 }
 
-if(!empty($_COOKIE['token'])) {
+if(!empty($_COOKIE['token']) && $_COOKIE['token'] != "0") {
     //check if the cookie is the same on db
     $read->exeRead("usuarios", "WHERE token = :to", "to={$_COOKIE['token']}");
     if ($read->getResult() && $read->getResult()[0]['status'] === "1" && $read->getResult()[0]['token_expira'] > $prazoTokenExpira) {
@@ -27,6 +27,6 @@ if(!empty($_COOKIE['token'])) {
         sessionEnd();
     }
 
-} elseif (!empty($_SESSION['userlogin'])) {
+} else {
     sessionEnd();
 }

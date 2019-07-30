@@ -1,18 +1,32 @@
 <?php
 
 use Conn\Read;
-use Login\Logout;
+use Conn\Update;
+use Login\Login;
 
-if (isset($_SESSION['userlogin']) && !empty($_SESSION['userlogin']['token'])) {
-    $read = new Read();
-    $prazoTokenExpira = date('Y-m-d H:i:s', strtotime("-2 months", strtotime(date("Y-m-d H:i:s"))));
-    $read->exeRead("usuarios", "WHERE token = :to", "to={$_SESSION['userlogin']['token']}");
+$data['data'] = 0;
+$read = new Read();
+$prazoTokenExpira = date('Y-m-d H:i:s', strtotime("-12 months", strtotime(date("Y-m-d H:i:s"))));
+
+function sessionEnd() {
+    $up = new Update();
+    $up->exeUpdate("usuarios", ["token" => "", "token_expira" => ""], "WHERE id = :id", "id={$_SESSION['userlogin']['id']}");
+    if(!empty($_SESSION['userlogin']))
+        unset($_SESSION['userlogin']);
+}
+
+if(!empty($_COOKIE['token'])) {
+    //check if the cookie is the same on db
+    $read->exeRead("usuarios", "WHERE token = :to", "to={$_COOKIE['token']}");
     if ($read->getResult() && $read->getResult()[0]['status'] === "1" && $read->getResult()[0]['token_expira'] > $prazoTokenExpira) {
-        $data['data'] = $_SESSION['userlogin'];
-        $data['data']['setor'] = $data['data']['setor'] ?? "";
+        if(empty($_SESSION['userlogin']))
+            $login = new Login(["user" => $read->getResult()[0]['nome'], "password" => $read->getResult()[0]['password']], !1);
+
+        $data['data'] = 1;
     } else {
-        new Logout();
+        sessionEnd();
     }
-} else {
-    new Logout();
+
+} elseif (!empty($_SESSION['userlogin'])) {
+    sessionEnd();
 }

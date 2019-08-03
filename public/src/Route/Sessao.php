@@ -20,6 +20,7 @@ class Sessao
 
         } else if (!empty($_SESSION['userlogin']['token']) && isset($_COOKIE['token']) && $_COOKIE['token'] !== $_SESSION['userlogin']['token']) {
             //tenho ambos, cookie e login, mas são diferentes
+            setcookie("token", '', -1);
             new Logout();
         }
     }
@@ -29,13 +30,13 @@ class Sessao
      */
     private function cookieLogin()
     {
-        $read = new Read();
         $prazoTokenExpira = date('Y-m-d H:i:s', strtotime("-2 months", strtotime(date("Y-m-d H:i:s"))));
-        $read->exeRead("usuarios", "WHERE token = :to", "to={$_COOKIE['token']}");
-
-        if ($read->getResult() && $read->getResult()[0]['status'] == 1 && $read->getResult()[0]['token_expira'] > $prazoTokenExpira) {
-            new Login(["user" => $read->getResult()[0]['nome'], "password" => $read->getResult()[0]['password']]);
+        $sql = new \Conn\SqlCommand();
+        $sql->exeCommand("SELECT * FROM " . PRE . "usuarios as u JOIN " . PRE . "usuarios_token as t ON u.id = t.usuario WHERE t.token = '" . $_COOKIE['token'] . "' AND u.status = 1 AND t.token_expira > " . $prazoTokenExpira);
+        if($sql->getResult()) {
+            new Login(["user" => $sql->getResult()[0]['nome'], "password" => $sql->getResult()[0]['password']], !1);
         } else {
+            setcookie("token", '', -1);
             new Logout();
         }
     }

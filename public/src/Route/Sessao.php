@@ -14,7 +14,7 @@ class Sessao
         if (session_status() == PHP_SESSION_NONE)
             session_start();
 
-        if (empty($_SESSION['userlogin']['token']) && isset($_COOKIE['token']) && $_COOKIE['token'] !== "0") {
+        if (empty($_SESSION['userlogin']['token']) && !empty($_COOKIE['token']) && $_COOKIE['token'] !== "0") {
             //não tenho sessão, mas tenho cookies
             $this->cookieLogin();
 

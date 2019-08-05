@@ -4,6 +4,7 @@ namespace Route;
 
 use Conn\Read;
 use Conn\Update;
+use Conn\SqlCommand;
 use Entity\Dicionario;
 use Entity\Entity;
 use Entity\Metadados;
@@ -35,7 +36,7 @@ class Sessao
     private function cookieLogin()
     {
         $prazoTokenExpira = date('Y-m-d', strtotime("-2 months", strtotime(date("Y-m-d"))));
-        $sql = new \Conn\SqlCommand();
+        $sql = new SqlCommand();
         $sql->exeCommand("SELECT u.* FROM " . PRE . "usuarios as u JOIN " . PRE . "usuarios_token as t ON u.id = t.usuario WHERE t.token = '" . $_COOKIE['token'] . "' AND u.status = 1 AND t.token_expira > " . $prazoTokenExpira);
 
         if ($sql->getResult() && !empty($sql->getResult()[0]['nome'])) {

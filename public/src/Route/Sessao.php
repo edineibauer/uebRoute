@@ -3,7 +3,10 @@
 namespace Route;
 
 use Conn\Read;
+use Conn\Update;
 use Entity\Dicionario;
+use Entity\Entity;
+use Entity\Metadados;
 use Login\Login;
 use Login\Logout;
 
@@ -15,6 +18,7 @@ class Sessao
             session_start();
 
         if (empty($_SESSION['userlogin']['token']) && !empty($_COOKIE['token']) && $_COOKIE['token'] !== "0") {
+
             //não tenho sessão, mas tenho cookies
             $this->cookieLogin();
 
@@ -30,14 +34,62 @@ class Sessao
      */
     private function cookieLogin()
     {
-        $prazoTokenExpira = date('Y-m-d H:i:s', strtotime("-2 months", strtotime(date("Y-m-d H:i:s"))));
+        $prazoTokenExpira = date('Y-m-d', strtotime("-2 months", strtotime(date("Y-m-d"))));
         $sql = new \Conn\SqlCommand();
         $sql->exeCommand("SELECT u.* FROM " . PRE . "usuarios as u JOIN " . PRE . "usuarios_token as t ON u.id = t.usuario WHERE t.token = '" . $_COOKIE['token'] . "' AND u.status = 1 AND t.token_expira > " . $prazoTokenExpira);
-        if($sql->getResult() && !empty($sql->getResult()[0]['nome'])) {
-            new Login(["user" => $sql->getResult()[0]['nome'], "password" => $sql->getResult()[0]['password']], !1);
+
+        if ($sql->getResult() && !empty($sql->getResult()[0]['nome'])) {
+            $this->exeLogin($sql->getResult()[0]);
         } else {
             setcookie("token", '', -1);
             new Logout();
         }
+    }
+
+    /**
+     * @param array $usuario
+     */
+    private function exeLogin(array $users)
+    {
+
+        unset($users['password']);
+
+        $user = null;
+        $read = new Read();
+
+        if (!empty($users['setor']) && $users['setor'] !== "admin") {
+            $read->exeRead($users['setor'], "WHERE usuarios_id = :uid", "uid={$users['id']}");
+            if ($read->getResult()) {
+                $users['setorData'] = $read->getResult()[0];
+                unset($users['setorData']['usuarios_id']);
+                foreach (Metadados::getDicionario($users['setor']) as $col => $meta) {
+                    if ($meta['format'] === "password" || $meta['key'] === "information")
+                        unset($users['setorData'][$meta['column']]);
+                }
+                $user = $users;
+            }
+        } else {
+            $users['setor'] = "admin";
+            $users['setorData'] = "";
+            $user = $users;
+        }
+
+        //busca informações do grupo de usuário pertencente
+        if (!empty($user)) {
+            $user['groupData'] = "";
+            if (!empty($user['setorData'])) {
+                $dicionarios = Entity::dicionario(null, !0);
+                foreach ($dicionarios[$user['setor']]['dicionario'] as $meta) {
+                    if ($meta['format'] === "list" && $dicionarios[$meta['relation']]['info']['user'] === 2 && !empty($user['setorData'][$meta['column']])) {
+                        $read->exeRead($meta['relation'], "WHERE id = :rid", "rid={$user['setorData'][$meta['column']]}");
+                        $user['groupData'] = ($read->getResult() ? $read->getResult()[0] : "");
+                    }
+                }
+            }
+        }
+
+        $_SESSION['userlogin'] = $user;
+        $_SESSION['userlogin']['imagem'] = "";
+        $_SESSION['userlogin']['token'] = $_COOKIE['token'];
     }
 }

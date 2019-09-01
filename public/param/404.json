@@ -1,4 +1,4 @@
 {
   "title": "404 Caminho não Encontrado",
-  "css": "w3"
+  "css": ["w3"]
 }

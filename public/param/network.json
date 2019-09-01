@@ -1,4 +1,4 @@
 {
   "title": "Sem Conexão com a Internet",
-  "css": "w3"
+  "css": ["w3"]
 }

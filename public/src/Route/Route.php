@@ -158,12 +158,21 @@ class Route
     {
         $rotas = \Config\Config::getViewPermissoes();
         $libsPath[] = [DOMINIO => "public/{$this->directory}"];
+
+        //verifica rotas publicas substituitivas de libs
+        $libsPath = array_merge($libsPath, array_map(function ($class) {
+            return [DOMINIO => "public/overload/{$class}/{$this->directory}"];
+        }, $rotas));
+
+        //verifica rotas com o setor
         if (!empty($_SESSION['userlogin'])) {
             $libsPath[][DOMINIO] = "public/{$this->directory}/{$_SESSION['userlogin']['setor']}";
             $libsPath = array_merge($libsPath, array_map(function ($class) {
                 return [$class => VENDOR . $class . "/public/{$this->directory}/{$_SESSION['userlogin']['setor']}"];
             }, $rotas));
         }
+
+        //rotas das libs
         $libsPath = array_merge($libsPath, array_map(function ($class) {
             return [$class => VENDOR . $class . "/public/{$this->directory}"];
         }, $rotas));

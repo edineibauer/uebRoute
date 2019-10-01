@@ -27,7 +27,7 @@ class Link extends Route
     {
         parent::__construct($url, $dir);
 
-        $pathFile = (parent::getLib() === DOMINIO ? "public/" : VENDOR . parent::getLib() . "/public/");
+        $pathFile = (parent::getLib() === DOMINIO ? (str_replace([PATH_HOME, "/" . parent::getFile() . ".php", "view"], ['', '', ''], parent::getRoute())) : VENDOR . parent::getLib() . "/public/");
         $this->param = $this->getBaseParam(parent::getFile(), $pathFile);
         $this->param['data'] = $this->readData(parent::getFile());
 

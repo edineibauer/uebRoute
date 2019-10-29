@@ -9,7 +9,7 @@ ob_start();
                     <div class="col s12">
                         <br>
                         <div class="col s12">
-                            <img src="<?= HOME ?>assetsPublic/img/dino.png">
+                            <img src="<?= HOME ?>assetsPublic/img/dino.png?v=<?= VERSION ?>">
                         </div>
                         <div class="panel font-xlarge font-light padding-32">
                             Não há conexão com a Internet

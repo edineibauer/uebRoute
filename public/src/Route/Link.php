@@ -61,6 +61,11 @@ class Link extends Route
         if (!file_exists(PATH_HOME . "assetsPublic/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/core.min.css"))
             new UpdateSystem(['assets']);
 
+        if(DEV) {
+            unlink(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js");
+            unlink(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css");
+        }
+
         if (!file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js") || !file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css")) {
             if (!empty($this->param['js']) || !empty($this->param['css'])) {
                 $list = implode('/', array_unique(array_merge((is_array($this->param['js']) ? $this->param['js'] : []), (is_array($this->param['css']) ? $this->param['css'] : []))));

@@ -182,43 +182,34 @@ class Link extends Route
     }
 
     /**
-     * Copia pasta inteira
-     * @param string $src
-     * @param string $dst
-     */
-    private function recurseCopy(string $src, string $dst) {
-        $dir = opendir($src);
-        @mkdir($dst);
-        while(false !== ( $file = readdir($dir)) ) {
-            if (( $file != '.' ) && ( $file != '..' )) {
-                if ( is_dir($src . '/' . $file) )
-                    $this->recurseCopy($src . '/' . $file,$dst . '/' . $file);
-                else
-                    copy($src . '/' . $file,$dst . '/' . $file);
-            }
-        }
-        closedir($dir);
-    }
-
-    /**
      * Copia os assets fazendo overload
-     * @param string $pathFile
      */
-    private function overloadLibs(string $pathFile) {
+    private function overloadLibs() {
+        //create file assets default
+        if(file_exists(PATH_HOME . "vendor/ueb/" . parent::getLib() . "/public/assets/" . parent::getFile() . ".css"))
+            copy(PATH_HOME . "vendor/ueb/" . parent::getLib() . "/public/assets/" . parent::getFile() . ".css", PATH_HOME . VENDOR . parent::getLib() . "/public/assets/" . parent::getFile() . ".css");
+
+        if(file_exists(PATH_HOME . "vendor/ueb/" . parent::getLib() . "/public/assets/" . parent::getFile() . ".js"))
+            copy(PATH_HOME . "vendor/ueb/" . parent::getLib() . "/public/assets/" . parent::getFile() . ".js", PATH_HOME . VENDOR . parent::getLib() . "/public/assets/" . parent::getFile() . ".js");
+
         //para cada lib overload other lib
-        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $pathOverload) {
-            if(file_exists(PATH_HOME . VENDOR . $pathOverload . "/overload/" . parent::getLib()) && is_dir(PATH_HOME . VENDOR . $pathOverload . "/overload/" . parent::getLib())){
-                $dirOverload = PATH_HOME . VENDOR . $pathOverload . "/overload/" . parent::getLib() . (file_exists(PATH_HOME . VENDOR . $pathOverload . "/overload/" . parent::getLib() . "/public") ? "/public" : "");
-                if(file_exists($dirOverload . "/assets"))
-                    $this->recurseCopy($dirOverload . "/assets", PATH_HOME . VENDOR . parent::getLib() . "/public/assets");
+        foreach (Helper::listFolder(PATH_HOME . "vendor/ueb/") as $pathOverload) {
+            if(file_exists(PATH_HOME . "vendor/ueb/" . $pathOverload . "/overload/" . parent::getLib()) && is_dir(PATH_HOME . "vendor/ueb/" . $pathOverload . "/overload/" . parent::getLib())){
+                $dirOverload = PATH_HOME . "vendor/ueb/" . $pathOverload . "/overload/" . parent::getLib() . (file_exists(PATH_HOME . "vendor/ueb/" . $pathOverload . "/overload/" . parent::getLib() . "/public") ? "/public" : "");
+                if(file_exists($dirOverload . "/assets/" . parent::getFile() . ".css"))
+                    copy($dirOverload . "/assets/" . parent::getFile() . ".css", PATH_HOME . VENDOR . parent::getLib() . "/public/assets/" . parent::getFile() . ".css");
+                if(file_exists($dirOverload . "/assets/" . parent::getFile() . ".js"))
+                    copy($dirOverload . "/assets/" . parent::getFile() . ".js", PATH_HOME . VENDOR . parent::getLib() . "/public/assets/" . parent::getFile() . ".js");
             }
         }
 
         //public (projeto atual) overload libs
         if(is_dir(PATH_HOME . "public/overload/" . parent::getLib())) {
             $dirOverload = PATH_HOME . "public/overload/" . parent::getLib() . (file_exists(PATH_HOME . "public/overload/" . parent::getLib() . "/public") ? "/public" : "");
-            if(file_exists($dirOverload . "/assets"))
-                $this->recurseCopy($dirOverload . "/assets", PATH_HOME . VENDOR . parent::getLib() . "/public/assets");
+            if(file_exists($dirOverload . "/assets/" . parent::getFile() . ".css"))
+                copy($dirOverload . "/assets/" . parent::getFile() . ".css", PATH_HOME . VENDOR . parent::getLib() . "/public/assets/" . parent::getFile() . ".css");
+            if(file_exists($dirOverload . "/assets/" . parent::getFile() . ".js"))
+                copy($dirOverload . "/assets/" . parent::getFile() . ".js", PATH_HOME . VENDOR . parent::getLib() . "/public/assets/" . parent::getFile() . ".js");
         }
     }
 

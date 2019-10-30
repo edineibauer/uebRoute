@@ -62,8 +62,10 @@ class Link extends Route
             new UpdateSystem(['assets']);
 
         if(DEV) {
-            unlink(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js");
-            unlink(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css");
+            if(file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js"))
+                unlink(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js");
+            if(file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css"))
+                unlink(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css");
         }
 
         if (!file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js") || !file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css")) {

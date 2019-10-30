@@ -69,6 +69,9 @@ class Link extends Route
         }
 
         if (!file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js") || !file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css")) {
+
+            $this->overloadLibs($pathFile);
+
             if (!empty($this->param['js']) || !empty($this->param['css'])) {
                 $list = implode('/', array_unique(array_merge((is_array($this->param['js']) ? $this->param['js'] : []), (is_array($this->param['css']) ? $this->param['css'] : []))));
                 $data = json_decode(file_get_contents(REPOSITORIO . "app/library/{$list}"), true);
@@ -179,6 +182,47 @@ class Link extends Route
     }
 
     /**
+     * Copia pasta inteira
+     * @param string $src
+     * @param string $dst
+     */
+    private function recurseCopy(string $src, string $dst) {
+        $dir = opendir($src);
+        @mkdir($dst);
+        while(false !== ( $file = readdir($dir)) ) {
+            if (( $file != '.' ) && ( $file != '..' )) {
+                if ( is_dir($src . '/' . $file) )
+                    $this->recurseCopy($src . '/' . $file,$dst . '/' . $file);
+                else
+                    copy($src . '/' . $file,$dst . '/' . $file);
+            }
+        }
+        closedir($dir);
+    }
+
+    /**
+     * Copia os assets fazendo overload
+     * @param string $pathFile
+     */
+    private function overloadLibs(string $pathFile) {
+        //para cada lib overload other lib
+        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $pathOverload) {
+            if(file_exists(PATH_HOME . VENDOR . $pathOverload . "/overload/" . parent::getLib()) && is_dir(PATH_HOME . VENDOR . $pathOverload . "/overload/" . parent::getLib())){
+                $dirOverload = PATH_HOME . VENDOR . $pathOverload . "/overload/" . parent::getLib() . (file_exists(PATH_HOME . VENDOR . $pathOverload . "/overload/" . parent::getLib() . "/public") ? "/public" : "");
+                if(file_exists($dirOverload . "/assets"))
+                    $this->recurseCopy($dirOverload . "/assets", PATH_HOME . VENDOR . parent::getLib() . "/public/assets");
+            }
+        }
+
+        //public (projeto atual) overload libs
+        if(is_dir(PATH_HOME . "public/overload/" . parent::getLib())) {
+            $dirOverload = PATH_HOME . "public/overload/" . parent::getLib() . (file_exists(PATH_HOME . "public/overload/" . parent::getLib() . "/public") ? "/public" : "");
+            if(file_exists($dirOverload . "/assets"))
+                $this->recurseCopy($dirOverload . "/assets", PATH_HOME . VENDOR . parent::getLib() . "/public/assets");
+        }
+    }
+
+    /**
      * Cria View Assets JS
      * @param string $name
      * @param array $data
@@ -205,7 +249,6 @@ class Link extends Route
         /**
          * Busca Sistemas que tenham assets nessa página
          */
-
         foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
             if(file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/_config/") && (file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.js") || file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.min.js"))) {
                 if (file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.min.js"))

@@ -300,9 +300,21 @@ class Link extends Route
 
         $minifier->minify(PATH_HOME . "assetsPublic/view/{$name}.min.css");
 
+        $config = json_decode(file_get_contents(PATH_HOME . "_config/config.json"), true);
+
+        $dirTheme = (file_exists(PATH_HOME . "public/assets/theme.min.css") ? PATH_HOME . "public/assets/theme.min.css" : PATH_HOME . VENDOR . "config/public/assets/theme.min.css");
+        $themeFile = file_get_contents($dirTheme);
+        $theme = explode("}", explode(".theme{", $themeFile)[1])[0];
+        $themeColor = explode("}", explode(".theme-text-aux{", $themeFile)[1])[0];
+        $theme = explode("!important", explode("background-color:", $theme)[1])[0];
+        $themeColor = explode("!important", explode("color:", $themeColor)[1])[0];
+
+        $arrayReplace = ["../" => "", '{$home}' => HOME, '{$vendor}' => VENDOR, '{$version}' => $config['version'], '{$favicon}' => $config['favicon'], '{$logo}' => $config['logo'], '{$theme}' => $theme, '{$theme-aux}' => $themeColor, '{$publico}' => PUBLICO,
+            '{{home}}' => HOME, '{{vendor}}' => VENDOR, '{{version}}' => $config['version'], '{{favicon}}' => $config['favicon'], '{{logo}}' => $config['logo'], '{{theme}}' => $theme, '{{theme-aux}}' => $themeColor, '{{publico}}' => PUBLICO];
+
         //Ajusta diretório dos assets
         $file = file_get_contents(PATH_HOME . "assetsPublic/view/{$name}.min.css");
-        $file = str_replace("../", "", $file);
+        $file = str_replace(array_keys($arrayReplace), array_values($arrayReplace), $file);
         $file = $this->getPrefixedCss($file, ".r-" . $name);
 
         $f = fopen(PATH_HOME . "assetsPublic/view/{$name}.min.css", "w");

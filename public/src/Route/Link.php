@@ -214,6 +214,23 @@ class Link extends Route
     }
 
     /**
+     * @param string $asset
+     * @param string $pathFile
+     * @param string $extension
+     * @return false|string
+     */
+    private function getAssetsContent(string $asset, string $pathFile, string $extension) {
+        if(DOMINIO !== parent::getLib() && file_exists(PATH_HOME . "public/overload/" . parent::getLib() . "/assets/" . $asset . ".{$extension}")) {
+            return @file_get_contents(PATH_HOME . "public/overload/" . parent::getLib() . "/assets/" . $asset . ".{$extension}");
+        } elseif(DOMINIO !== parent::getLib() && file_exists(PATH_HOME . "public/overload/" . parent::getLib() . "/public/assets/" . $asset . ".{$extension}")) {
+            return @file_get_contents(PATH_HOME . "public/overload/" . parent::getLib() ."/public/assets/" . $asset . ".{$extension}");
+        } elseif (file_exists(PATH_HOME . $pathFile . "assets/" . $asset . ".{$extension}")) {
+            return @file_get_contents(PATH_HOME . $pathFile . "assets/" . $asset . ".{$extension}");
+        }
+        return "";
+    }
+
+    /**
      * Cria View Assets JS
      * @param string $name
      * @param array $data
@@ -229,6 +246,15 @@ class Link extends Route
                     if ($file['type'] === "text/javascript")
                         $minifier->add($file['content']);
                 }
+            }
+        }
+
+        if(!empty($this->param['js'])) {
+            if(is_string($this->param['js'])) {
+                $minifier->add($this->getAssetsContent($this->param['js'], $pathFile, 'js'));
+            } elseif(is_array($this->param['js'])) {
+                foreach ($this->param['js'] as $j)
+                    $minifier->add($this->getAssetsContent($j, $pathFile, 'js'));
             }
         }
 
@@ -278,6 +304,15 @@ class Link extends Route
                         }
                     }
                 }
+            }
+        }
+
+        if(!empty($this->param['css'])) {
+            if(is_string($this->param['css'])) {
+                $minifier->add($this->getAssetsContent($this->param['css'], $pathFile, 'css'));
+            } elseif(is_array($this->param['css'])) {
+                foreach ($this->param['css'] as $j)
+                    $minifier->add($this->getAssetsContent($j, $pathFile, 'css'));
             }
         }
 
@@ -423,11 +458,16 @@ class Link extends Route
             "analytics" => defined("ANALYTICS") ? ANALYTICS : ""
         ];
 
-        if (file_exists(PATH_HOME . $pathFile . "param/{$file}.json")) {
-            $param = json_decode(file_get_contents(PATH_HOME . $pathFile . "param/{$file}.json"), true);
-            if (!empty($param))
-                $base = array_merge($base, $param);
+        if(file_exists(PATH_HOME . "public/overload/" . parent::getLib() . "/param/{$file}.json")) {
+            $param = json_decode(file_get_contents(PATH_HOME . "public/overload/" . parent::getLib() . "/param/{$file}.json"), !0);
+        } elseif(file_exists(PATH_HOME . "public/overload/" . parent::getLib() . "/public/param/{$file}.json")) {
+            $param = json_decode(file_get_contents(PATH_HOME . "public/overload/" . parent::getLib() . "/public/param/{$file}.json"), !0);
+        } elseif (file_exists(PATH_HOME . $pathFile . "param/{$file}.json")) {
+            $param = json_decode(file_get_contents(PATH_HOME . $pathFile . "param/{$file}.json"), !0);
         }
+
+        if (!empty($param))
+            return array_merge($base, $param);
 
         return $base;
     }

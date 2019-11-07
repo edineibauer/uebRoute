@@ -31,6 +31,7 @@ class Route
             $url = str_replace([PATH_HOME, HOME], '', $url);
 
         $this->searchRoute($url);
+        $this->checkDevToCopyOverloaded();
     }
 
     /**
@@ -173,5 +174,34 @@ class Route
         }, $rotas));
 
         return $libsPath;
+    }
+
+    private function checkDevToCopyOverloaded()
+    {
+        if(DEV) {
+            if(file_exists(PATH_HOME . "public/overload/" . $this->lib . "/public")) {
+                $this->recurseCopy(PATH_HOME . "public/overload/" . $this->lib . "/public", PATH_HOME . VENDOR . $this->lib . "/public");
+            } elseif(file_exists(PATH_HOME . "public/overload/" . $this->lib)) {
+                $this->recurseCopy(PATH_HOME . "public/overload/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
+            }
+        }
+    }
+
+    /**
+     * @param string $src
+     * @param string $dst
+     */
+    private function recurseCopy(string $src, string $dst) {
+        $dir = opendir($src);
+        @mkdir($dst);
+        while(false !== ( $file = readdir($dir)) ) {
+            if (( $file != '.' ) && ( $file != '..' )) {
+                if ( is_dir($src . '/' . $file) )
+                    $this->recurseCopy($src . '/' . $file,$dst . '/' . $file);
+                else
+                    copy($src . '/' . $file,$dst . '/' . $file);
+            }
+        }
+        closedir($dir);
     }
 }

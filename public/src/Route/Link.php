@@ -70,8 +70,6 @@ class Link extends Route
 
         if (!file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js") || !file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css")) {
 
-            $this->overloadLibs($pathFile);
-
             if (!empty($this->param['js']) || !empty($this->param['css'])) {
                 $list = implode('/', array_unique(array_merge((is_array($this->param['js']) ? $this->param['js'] : []), (is_array($this->param['css']) ? $this->param['css'] : []))));
                 $data = json_decode(file_get_contents(REPOSITORIO . "app/library/{$list}"), true);
@@ -146,7 +144,7 @@ class Link extends Route
                     $name = $name->getColumn();
 
                     $read = new Read();
-                    $read->exeRead($file, "WHERE id = :nn || {$name} = :nn", "nn={parent::getVariaveis()[0]}");
+                    $read->exeRead($file, "WHERE id = :nn || {$name} = :nn", "nn=" . parent::getVariaveis()[0]);
                     if ($read->getResult()) {
                         $dados = $read->getResult()[0];
                         if (!isset($dados['title']))
@@ -178,38 +176,6 @@ class Link extends Route
                         copy($file['content'], PATH_HOME . "assetsPublic/img/{$datum['nome']}/{$file['name']}");
                 }
             }
-        }
-    }
-
-    /**
-     * Copia os assets fazendo overload
-     */
-    private function overloadLibs() {
-        //create file assets default
-        if(file_exists(PATH_HOME . "vendor/ueb/" . parent::getLib() . "/public/assets/" . parent::getFile() . ".css"))
-            copy(PATH_HOME . "vendor/ueb/" . parent::getLib() . "/public/assets/" . parent::getFile() . ".css", PATH_HOME . VENDOR . parent::getLib() . "/public/assets/" . parent::getFile() . ".css");
-
-        if(file_exists(PATH_HOME . "vendor/ueb/" . parent::getLib() . "/public/assets/" . parent::getFile() . ".js"))
-            copy(PATH_HOME . "vendor/ueb/" . parent::getLib() . "/public/assets/" . parent::getFile() . ".js", PATH_HOME . VENDOR . parent::getLib() . "/public/assets/" . parent::getFile() . ".js");
-
-        //para cada lib overload other lib
-        foreach (Helper::listFolder(PATH_HOME . "vendor/ueb/") as $pathOverload) {
-            if(file_exists(PATH_HOME . "vendor/ueb/" . $pathOverload . "/overload/" . parent::getLib()) && is_dir(PATH_HOME . "vendor/ueb/" . $pathOverload . "/overload/" . parent::getLib())){
-                $dirOverload = PATH_HOME . "vendor/ueb/" . $pathOverload . "/overload/" . parent::getLib() . (file_exists(PATH_HOME . "vendor/ueb/" . $pathOverload . "/overload/" . parent::getLib() . "/public") ? "/public" : "");
-                if(file_exists($dirOverload . "/assets/" . parent::getFile() . ".css"))
-                    copy($dirOverload . "/assets/" . parent::getFile() . ".css", PATH_HOME . VENDOR . parent::getLib() . "/public/assets/" . parent::getFile() . ".css");
-                if(file_exists($dirOverload . "/assets/" . parent::getFile() . ".js"))
-                    copy($dirOverload . "/assets/" . parent::getFile() . ".js", PATH_HOME . VENDOR . parent::getLib() . "/public/assets/" . parent::getFile() . ".js");
-            }
-        }
-
-        //public (projeto atual) overload libs
-        if(is_dir(PATH_HOME . "public/overload/" . parent::getLib())) {
-            $dirOverload = PATH_HOME . "public/overload/" . parent::getLib() . (file_exists(PATH_HOME . "public/overload/" . parent::getLib() . "/public") ? "/public" : "");
-            if(file_exists($dirOverload . "/assets/" . parent::getFile() . ".css"))
-                copy($dirOverload . "/assets/" . parent::getFile() . ".css", PATH_HOME . VENDOR . parent::getLib() . "/public/assets/" . parent::getFile() . ".css");
-            if(file_exists($dirOverload . "/assets/" . parent::getFile() . ".js"))
-                copy($dirOverload . "/assets/" . parent::getFile() . ".js", PATH_HOME . VENDOR . parent::getLib() . "/public/assets/" . parent::getFile() . ".js");
         }
     }
 
@@ -258,21 +224,14 @@ class Link extends Route
             }
         }
 
-        if (file_exists(PATH_HOME . $pathFile . "assets/{$name}.min.js"))
-            $minifier->add(file_get_contents(PATH_HOME . $pathFile . "assets/{$name}.min.js"));
-        elseif (file_exists(PATH_HOME . $pathFile . "assets/{$name}.js"))
-            $minifier->add(file_get_contents(PATH_HOME . $pathFile . "assets/{$name}.js"));
+        if (file_exists(PATH_HOME . $pathFile . "assets/" . $_SESSION['userlogin']['setor'] . "/{$name}.js")) {
 
-        /**
-         * Busca Sistemas que tenham assets nessa página
-         */
-        foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-            if(file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/_config/") && (file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.js") || file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.min.js"))) {
-                if (file_exists(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.min.js"))
-                    $minifier->add(file_get_contents(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.min.js"));
-                else
-                    $minifier->add(file_get_contents(PATH_HOME . VENDOR . "/" . $lib . "/public/assets/{$name}.js"));
-            }
+            //setor Assets
+            $minifier->add(file_get_contents(PATH_HOME . $pathFile . "assets/" . $_SESSION['userlogin']['setor'] . "/{$name}.js"));
+        } elseif (file_exists(PATH_HOME . $pathFile . "assets/{$name}.js")) {
+
+            //default Assets
+            $minifier->add(file_get_contents(PATH_HOME . $pathFile . "assets/{$name}.js"));
         }
 
         $minifier->minify(PATH_HOME . "assetsPublic/view/{$name}.min.js");
@@ -358,7 +317,12 @@ class Link extends Route
 
     }
 
-    private function getPrefixedCss($css,$prefix)
+    /**
+     * @param string $css
+     * @param string $prefix
+     * @return string|string[]|null
+     */
+    private function getPrefixedCss(string $css, string $prefix)
     {
         # Wipe all block comments
         $css = preg_replace('!/\*.*?\*/!s', '', $css);

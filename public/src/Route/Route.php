@@ -8,6 +8,8 @@
 
 namespace Route;
 
+use Helpers\Helper;
+
 class Route
 {
     private $directory;
@@ -183,6 +185,18 @@ class Route
                 $this->recurseCopy(PATH_HOME . "public/overload/" . $this->lib . "/public", PATH_HOME . VENDOR . $this->lib . "/public");
             } elseif(file_exists(PATH_HOME . "public/overload/" . $this->lib)) {
                 $this->recurseCopy(PATH_HOME . "public/overload/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
+            } else {
+
+                //caso não tenha arquivos overload no projeto atual, passa a verificar nas libs
+                foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+                    if(file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/public")) {
+                        $this->recurseCopy(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/public", PATH_HOME . VENDOR . $this->lib . "/public");
+                        break;
+                    } elseif(file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib)) {
+                        $this->recurseCopy(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
+                        break;
+                    }
+                }
             }
         }
     }

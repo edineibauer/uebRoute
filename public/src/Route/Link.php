@@ -224,7 +224,7 @@ class Link extends Route
             }
         }
 
-        if (file_exists(PATH_HOME . $pathFile . "assets/" . $_SESSION['userlogin']['setor'] . "/{$name}.js")) {
+        if (!empty($_SESSION['userlogin']['setor']) && file_exists(PATH_HOME . $pathFile . "assets/" . $_SESSION['userlogin']['setor'] . "/{$name}.js")) {
 
             //setor Assets
             $minifier->add(file_get_contents(PATH_HOME . $pathFile . "assets/" . $_SESSION['userlogin']['setor'] . "/{$name}.js"));

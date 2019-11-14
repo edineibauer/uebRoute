@@ -181,6 +181,11 @@ class Route
     private function checkDevToCopyOverloaded()
     {
         if(DEV) {
+            //restaura original from VENDOR
+            $this->recurseDelete(PATH_HOME . VENDOR . $this->lib);
+            $this->recurseCopy(PATH_HOME . "vendor/ueb/" . $this->lib, PATH_HOME . VENDOR . $this->lib);
+
+            //substitui com overload public
             if(file_exists(PATH_HOME . "public/overload/" . $this->lib . "/public")) {
                 $this->recurseCopy(PATH_HOME . "public/overload/" . $this->lib . "/public", PATH_HOME . VENDOR . $this->lib . "/public");
             } elseif(file_exists(PATH_HOME . "public/overload/" . $this->lib)) {
@@ -217,5 +222,22 @@ class Route
             }
         }
         closedir($dir);
+    }
+
+    /**
+     * @param string $src
+     */
+    private function recurseDelete(string $src) {
+        $dir = opendir($src);
+        while(false !== ( $file = readdir($dir)) ) {
+            if (( $file != '.' ) && ( $file != '..' )) {
+                if ( is_dir($src . '/' . $file) )
+                    $this->recurseDelete($src . '/' . $file);
+                else
+                    unlink($src . '/' . $file);
+            }
+        }
+        closedir($dir);
+        rmdir($src);
     }
 }

@@ -180,10 +180,10 @@ class Route
 
     private function checkDevToCopyOverloaded()
     {
-        if(DEV) {
+        if(DEV && $this->lib !== DOMINIO && file_exists(PATH_HOME . VENDOR . $this->lib . "/public")) {
             //restaura original from VENDOR
-            $this->recurseDelete(PATH_HOME . VENDOR . $this->lib);
-            $this->recurseCopy(PATH_HOME . "vendor/ueb/" . $this->lib, PATH_HOME . VENDOR . $this->lib);
+            $this->recurseDelete(PATH_HOME . VENDOR . $this->lib . "/public");
+            $this->recurseCopy(PATH_HOME . "vendor/ueb/" . $this->lib . "/public/", PATH_HOME . VENDOR . $this->lib . "/public");
 
             //substitui com overload public
             if(file_exists(PATH_HOME . "public/overload/" . $this->lib . "/public")) {

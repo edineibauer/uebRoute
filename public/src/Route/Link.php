@@ -275,10 +275,15 @@ class Link extends Route
             }
         }
 
-        if (file_exists(PATH_HOME . $pathFile . "assets/{$name}.css"))
+        if (!empty($_SESSION['userlogin']['setor']) && file_exists(PATH_HOME . $pathFile . "assets/" . $_SESSION['userlogin']['setor'] . "/{$name}.css")) {
+
+            //setor Assets
+            $minifier->add(file_get_contents(PATH_HOME . $pathFile . "assets/" . $_SESSION['userlogin']['setor'] . "/{$name}.css"));
+        } elseif (file_exists(PATH_HOME . $pathFile . "assets/{$name}.css")) {
+
+            //default Assets
             $minifier->add(file_get_contents(PATH_HOME . $pathFile . "assets/{$name}.css"));
-        elseif (file_exists(PATH_HOME . $pathFile . "assets/{$name}.min.css"))
-            $minifier->add(file_get_contents(PATH_HOME . $pathFile . "assets/{$name}.min.css"));
+        }
 
         /**
          * Busca Sistemas que tenham assets nessa página

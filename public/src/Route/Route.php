@@ -182,8 +182,11 @@ class Route
     {
         if(DEV && $this->lib !== DOMINIO && file_exists(PATH_HOME . VENDOR . $this->lib . "/public")) {
             //restaura original from VENDOR
-            $this->recurseDelete(PATH_HOME . VENDOR . $this->lib . "/public");
-            $this->recurseCopy(PATH_HOME . "vendor/ueb/" . $this->lib . "/public/", PATH_HOME . VENDOR . $this->lib . "/public");
+            Helper::createFolderIfNoExist(PATH_HOME . VENDOR . $this->lib . "/publicTmp");
+            if($this->recurseCopy(PATH_HOME . "vendor/ueb/" . $this->lib . "/public/", PATH_HOME . VENDOR . $this->lib . "/publicTmp")) {
+                $this->recurseDelete(PATH_HOME . VENDOR . $this->lib . "/public");
+                rename(PATH_HOME . VENDOR . $this->lib . "/publicTmp", PATH_HOME . VENDOR . $this->lib . "/public");
+            }
 
             //substitui com overload public
             if(file_exists(PATH_HOME . "public/overload/" . $this->lib . "/public")) {

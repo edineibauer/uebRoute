@@ -61,7 +61,7 @@ class Link extends Route
         if (!file_exists(PATH_HOME . "assetsPublic/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/core.min.css"))
             new UpdateSystem(['assets']);
 
-        if(DEV) {
+        if(DEV && @file_get_contents(REPOSITORIO)) {
             if(file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js"))
                 unlink(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js");
             if(file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css"))
@@ -72,7 +72,9 @@ class Link extends Route
 
             if (!empty($this->param['js']) || !empty($this->param['css'])) {
                 $list = implode('/', array_unique(array_merge((is_array($this->param['js']) ? $this->param['js'] : []), (is_array($this->param['css']) ? $this->param['css'] : []))));
-                $data = json_decode(file_get_contents(REPOSITORIO . "app/library/{$list}"), true);
+                $data = "";
+                if($libContent = @file_get_contents(REPOSITORIO . "app/library/{$list}"))
+                    $data = json_decode($libContent, !0);
                 $data = !empty($data) ? $data : [];
             } else {
                 $data = [];

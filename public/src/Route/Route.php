@@ -183,64 +183,28 @@ class Route
         if(DEV && $this->lib !== DOMINIO && file_exists(PATH_HOME . VENDOR . $this->lib . "/public")) {
             //restaura original from VENDOR
             Helper::createFolderIfNoExist(PATH_HOME . VENDOR . $this->lib . "/publicTmp");
-            if($this->recurseCopy(PATH_HOME . "vendor/ueb/" . $this->lib . "/public/", PATH_HOME . VENDOR . $this->lib . "/publicTmp")) {
-                $this->recurseDelete(PATH_HOME . VENDOR . $this->lib . "/public");
-                rename(PATH_HOME . VENDOR . $this->lib . "/publicTmp", PATH_HOME . VENDOR . $this->lib . "/public");
-            }
+            Helper::recurseCopy(PATH_HOME . "vendor/ueb/" . $this->lib . "/public/", PATH_HOME . VENDOR . $this->lib . "/publicTmp");
+            Helper::recurseDelete(PATH_HOME . VENDOR . $this->lib . "/public");
+            rename(PATH_HOME . VENDOR . $this->lib . "/publicTmp", PATH_HOME . VENDOR . $this->lib . "/public");
 
             //substitui com overload public
             if(file_exists(PATH_HOME . "public/overload/" . $this->lib . "/public")) {
-                $this->recurseCopy(PATH_HOME . "public/overload/" . $this->lib . "/public", PATH_HOME . VENDOR . $this->lib . "/public");
+                Helper::recurseCopy(PATH_HOME . "public/overload/" . $this->lib . "/public", PATH_HOME . VENDOR . $this->lib . "/public");
             } elseif(file_exists(PATH_HOME . "public/overload/" . $this->lib)) {
-                $this->recurseCopy(PATH_HOME . "public/overload/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
+                Helper::recurseCopy(PATH_HOME . "public/overload/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
             } else {
 
                 //caso não tenha arquivos overload no projeto atual, passa a verificar nas libs
                 foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
                     if(file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/public")) {
-                        $this->recurseCopy(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/public", PATH_HOME . VENDOR . $this->lib . "/public");
+                        Helper::recurseCopy(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/public", PATH_HOME . VENDOR . $this->lib . "/public");
                         break;
                     } elseif(file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib)) {
-                        $this->recurseCopy(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
+                        Helper::recurseCopy(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
                         break;
                     }
                 }
             }
         }
-    }
-
-    /**
-     * @param string $src
-     * @param string $dst
-     */
-    private function recurseCopy(string $src, string $dst) {
-        $dir = opendir($src);
-        @mkdir($dst);
-        while(false !== ( $file = readdir($dir)) ) {
-            if (( $file != '.' ) && ( $file != '..' )) {
-                if ( is_dir($src . '/' . $file) )
-                    $this->recurseCopy($src . '/' . $file,$dst . '/' . $file);
-                else
-                    copy($src . '/' . $file,$dst . '/' . $file);
-            }
-        }
-        closedir($dir);
-    }
-
-    /**
-     * @param string $src
-     */
-    private function recurseDelete(string $src) {
-        $dir = opendir($src);
-        while(false !== ( $file = readdir($dir)) ) {
-            if (( $file != '.' ) && ( $file != '..' )) {
-                if ( is_dir($src . '/' . $file) )
-                    $this->recurseDelete($src . '/' . $file);
-                else
-                    unlink($src . '/' . $file);
-            }
-        }
-        closedir($dir);
-        rmdir($src);
     }
 }

@@ -187,23 +187,20 @@ class Route
             Helper::recurseDelete(PATH_HOME . VENDOR . $this->lib . "/public");
             rename(PATH_HOME . VENDOR . $this->lib . "/publicTmp", PATH_HOME . VENDOR . $this->lib . "/public");
 
+            //caso não tenha arquivos overload no projeto atual, passa a verificar nas libs
+            foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+                if(file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/public")) {
+                    Helper::recurseCopy(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/public", PATH_HOME . VENDOR . $this->lib . "/public");
+                } elseif(file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib)) {
+                    Helper::recurseCopy(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
+                }
+            }
+
             //substitui com overload public
             if(file_exists(PATH_HOME . "public/overload/" . $this->lib . "/public")) {
                 Helper::recurseCopy(PATH_HOME . "public/overload/" . $this->lib . "/public", PATH_HOME . VENDOR . $this->lib . "/public");
             } elseif(file_exists(PATH_HOME . "public/overload/" . $this->lib)) {
                 Helper::recurseCopy(PATH_HOME . "public/overload/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
-            } else {
-
-                //caso não tenha arquivos overload no projeto atual, passa a verificar nas libs
-                foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-                    if(file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/public")) {
-                        Helper::recurseCopy(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/public", PATH_HOME . VENDOR . $this->lib . "/public");
-                        break;
-                    } elseif(file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib)) {
-                        Helper::recurseCopy(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
-                        break;
-                    }
-                }
             }
         }
     }

@@ -184,8 +184,9 @@ class Route
             //restaura original from VENDOR
             Helper::createFolderIfNoExist(PATH_HOME . VENDOR . $this->lib . "/publicTmp");
             Helper::recurseCopy(PATH_HOME . "vendor/ueb/" . $this->lib . "/public/", PATH_HOME . VENDOR . $this->lib . "/publicTmp");
-            Helper::recurseDelete(PATH_HOME . VENDOR . $this->lib . "/public");
+            rename(PATH_HOME . VENDOR . $this->lib . "/public", PATH_HOME . VENDOR . $this->lib . "/publicOld");
             rename(PATH_HOME . VENDOR . $this->lib . "/publicTmp", PATH_HOME . VENDOR . $this->lib . "/public");
+            Helper::recurseDelete(PATH_HOME . VENDOR . $this->lib . "/publicOld");
 
             //caso não tenha arquivos overload no projeto atual, passa a verificar nas libs
             foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {

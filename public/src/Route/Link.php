@@ -31,12 +31,12 @@ class Link extends Route
         $this->param = $this->getBaseParam(parent::getFile(), $pathFile);
         $this->param['data'] = $this->readData(parent::getFile());
 
-        if($this->haveAccessPermission()) {
+//        if($this->haveAccessPermission()) {
             $this->checkAssetsExist($pathFile);
             $this->createParamResponse();
-        } else {
-            $this::__construct("403");
-        }
+//        } else {
+//            $this::__construct("403");
+//        }
     }
 
     private function createParamResponse()
@@ -100,7 +100,7 @@ class Link extends Route
     /**
      * @return bool
      */
-    private function haveAccessPermission(): bool
+    /*private function haveAccessPermission(): bool
     {
         $allow = !0;
         $mySetor = (!empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0");
@@ -130,7 +130,7 @@ class Link extends Route
         }
 
         return $allow;
-    }
+    }*/
 
     /**
      * @param string $file
@@ -426,6 +426,7 @@ class Link extends Route
             "navbar" => !0,
             "setor" => "",
             "!setor" => "",
+            "redirect" => "403",
             "analytics" => defined("ANALYTICS") ? ANALYTICS : ""
         ];
 

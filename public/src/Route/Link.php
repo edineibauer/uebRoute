@@ -194,6 +194,8 @@ class Link extends Route
             return @file_get_contents(PATH_HOME . "public/overload/" . parent::getLib() ."/public/assets/" . $asset . ".{$extension}");
         } elseif (file_exists(PATH_HOME . $pathFile . "assets/" . $asset . ".{$extension}")) {
             return @file_get_contents(PATH_HOME . $pathFile . "assets/" . $asset . ".{$extension}");
+        } elseif (file_exists(PATH_HOME . "public/assets/" . $asset . ".{$extension}")) {
+            return @file_get_contents(PATH_HOME . "public/assets/" . $asset . ".{$extension}");
         }
         return "";
     }

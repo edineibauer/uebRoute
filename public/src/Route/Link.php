@@ -421,6 +421,7 @@ class Link extends Route
             "font" => "",
             "descricao" => "",
             "data" => 0,
+            "front" => [],
             "isAdmin" => !empty($_SESSION['userlogin']['setor']) && $_SESSION['userlogin']['setor'] === "admin",
             "header" => !0,
             "navbar" => !0,

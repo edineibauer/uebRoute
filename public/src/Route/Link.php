@@ -25,6 +25,7 @@ class Link extends Route
      */
     function __construct(string $url = null, string $dir = null)
     {
+        $dir = $dir ?? "view";
         parent::__construct($url, $dir);
 
         $pathFile = (parent::getLib() === DOMINIO ? (str_replace([PATH_HOME, "/" . parent::getFile() . ".php", "view"], ['', '', ''], parent::getRoute())) : VENDOR . parent::getLib() . "/public/");
@@ -32,7 +33,7 @@ class Link extends Route
         $this->param['data'] = $this->readData(parent::getFile());
 
 //        if($this->haveAccessPermission()) {
-            $this->checkAssetsExist($pathFile);
+            $this->checkAssetsExist($pathFile, $dir);
             $this->createParamResponse();
 //        } else {
 //            $this::__construct("403");
@@ -54,14 +55,18 @@ class Link extends Route
 
     /**
      * @param string $pathFile
+     * @param string $dir
      */
-    private function checkAssetsExist(string $pathFile)
+    private function checkAssetsExist(string $pathFile, string $dir)
     {
+
+        $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
+
         /* Se não existir os assets Core, cria eles */
-        if (!file_exists(PATH_HOME . "assetsPublic/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/core.min.css"))
+        if (!file_exists(PATH_HOME . "assetsPublic/" . $setor . "/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/" . $setor . "/core.min.css"))
             new UpdateSystem(['assets']);
 
-        if(DEV && @file_get_contents(REPOSITORIO)) {
+        if(DEV && $dir === "view" && @file_get_contents(REPOSITORIO)) {
             if(file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js"))
                 unlink(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js");
             if(file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css"))
@@ -444,8 +449,6 @@ class Link extends Route
             "redirect" => "403",
             "analytics" => defined("ANALYTICS") ? ANALYTICS : ""
         ];
-
-
 
         $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
         if(file_exists(PATH_HOME . "public/overload/" . $setor . "/" . parent::getLib() . "/param/{$file}.json")) {

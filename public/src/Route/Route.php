@@ -184,7 +184,7 @@ class Route
      */
     private function ifDevUpdateVendorCache()
     {
-        if(DEV && $this->lib !== DOMINIO && file_exists(PATH_HOME . VENDOR . $this->lib . "/public")) {
+        if(DEV && $this->directory === "view" && $this->lib !== DOMINIO && file_exists(PATH_HOME . VENDOR . $this->lib . "/public")) {
             //restaura original from VENDOR
 
             $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";

@@ -188,15 +188,27 @@ class Link extends Route
      * @return false|string
      */
     private function getAssetsContent(string $asset, string $pathFile, string $extension) {
-        if(DOMINIO !== parent::getLib() && file_exists(PATH_HOME . "public/overload/" . parent::getLib() . "/assets/" . $asset . ".{$extension}")) {
+        $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
+        if(DOMINIO !== parent::getLib() && file_exists(PATH_HOME . "public/overload/" . $setor . "/" . parent::getLib() . "/assets/" . $asset . ".{$extension}")) {
+            return @file_get_contents(PATH_HOME . "public/overload/" . $setor . "/" . parent::getLib() . "/assets/" . $asset . ".{$extension}");
+
+        } elseif(DOMINIO !== parent::getLib() && file_exists(PATH_HOME . "public/overload/" . parent::getLib() . "/assets/" . $asset . ".{$extension}")) {
             return @file_get_contents(PATH_HOME . "public/overload/" . parent::getLib() . "/assets/" . $asset . ".{$extension}");
-        } elseif(DOMINIO !== parent::getLib() && file_exists(PATH_HOME . "public/overload/" . parent::getLib() . "/public/assets/" . $asset . ".{$extension}")) {
-            return @file_get_contents(PATH_HOME . "public/overload/" . parent::getLib() ."/public/assets/" . $asset . ".{$extension}");
+
+        } elseif (file_exists(PATH_HOME . $pathFile . "assets/" . $setor . "/" . $asset . ".{$extension}")) {
+            return @file_get_contents(PATH_HOME . $pathFile . "assets/" . $setor . "/" . $asset . ".{$extension}");
+
         } elseif (file_exists(PATH_HOME . $pathFile . "assets/" . $asset . ".{$extension}")) {
             return @file_get_contents(PATH_HOME . $pathFile . "assets/" . $asset . ".{$extension}");
+
+        } elseif (file_exists(PATH_HOME . "public/assets/" . $setor . "/" . $asset . ".{$extension}")) {
+            return @file_get_contents(PATH_HOME . "public/assets/" . $setor . "/" . $asset . ".{$extension}");
+
         } elseif (file_exists(PATH_HOME . "public/assets/" . $asset . ".{$extension}")) {
             return @file_get_contents(PATH_HOME . "public/assets/" . $asset . ".{$extension}");
+
         }
+
         return "";
     }
 
@@ -433,10 +445,18 @@ class Link extends Route
             "analytics" => defined("ANALYTICS") ? ANALYTICS : ""
         ];
 
-        if(file_exists(PATH_HOME . "public/overload/" . parent::getLib() . "/param/{$file}.json")) {
+
+
+        $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
+        if(file_exists(PATH_HOME . "public/overload/" . $setor . "/" . parent::getLib() . "/param/{$file}.json")) {
+            $param = json_decode(file_get_contents(PATH_HOME . "public/overload/" . $setor . "/" . parent::getLib() . "/param/{$file}.json"), !0);
+
+        } elseif(file_exists(PATH_HOME . "public/overload/" . parent::getLib() . "/param/{$file}.json")) {
             $param = json_decode(file_get_contents(PATH_HOME . "public/overload/" . parent::getLib() . "/param/{$file}.json"), !0);
-        } elseif(file_exists(PATH_HOME . "public/overload/" . parent::getLib() . "/public/param/{$file}.json")) {
-            $param = json_decode(file_get_contents(PATH_HOME . "public/overload/" . parent::getLib() . "/public/param/{$file}.json"), !0);
+
+        } elseif (file_exists(PATH_HOME . $pathFile . "param/" . $setor . "/{$file}.json")) {
+            $param = json_decode(file_get_contents(PATH_HOME . $pathFile . "param/" . $setor . "/{$file}.json"), !0);
+
         } elseif (file_exists(PATH_HOME . $pathFile . "param/{$file}.json")) {
             $param = json_decode(file_get_contents(PATH_HOME . $pathFile . "param/{$file}.json"), !0);
         }

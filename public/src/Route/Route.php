@@ -33,7 +33,7 @@ class Route
             $url = str_replace([PATH_HOME, HOME], '', $url);
 
         $this->searchRoute($url);
-        $this->checkDevToCopyOverloaded();
+        $this->ifDevUpdateVendorCache();
     }
 
     /**
@@ -178,10 +178,20 @@ class Route
         return $libsPath;
     }
 
-    private function checkDevToCopyOverloaded()
+    /**
+     * Se estiver em Desenvolvimento
+     * Atualiza todos os arquivos de cache do vendor que possui a Rota
+     */
+    private function ifDevUpdateVendorCache()
     {
         if(DEV && $this->lib !== DOMINIO && file_exists(PATH_HOME . VENDOR . $this->lib . "/public")) {
             //restaura original from VENDOR
+
+            $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
+
+            /**
+             * Cria uma cópia de vendor em libs
+             */
             Helper::createFolderIfNoExist(PATH_HOME . VENDOR . $this->lib . "/publicTmp");
             Helper::recurseCopy(PATH_HOME . "vendor/ueb/" . $this->lib . "/public/", PATH_HOME . VENDOR . $this->lib . "/publicTmp");
             rename(PATH_HOME . VENDOR . $this->lib . "/public", PATH_HOME . VENDOR . $this->lib . "/publicOld");
@@ -190,18 +200,22 @@ class Route
 
             //caso não tenha arquivos overload no projeto atual, passa a verificar nas libs
             foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-                if(file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/public")) {
-                    Helper::recurseCopy(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/public", PATH_HOME . VENDOR . $this->lib . "/public");
+                if(file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $setor . "/" . $this->lib)) {
+                    Helper::recurseCopy(PATH_HOME . VENDOR . $lib . "/public/overload/" . $setor . "/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
+
                 } elseif(file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib)) {
                     Helper::recurseCopy(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
+
                 }
             }
 
             //substitui com overload public
-            if(file_exists(PATH_HOME . "public/overload/" . $this->lib . "/public")) {
-                Helper::recurseCopy(PATH_HOME . "public/overload/" . $this->lib . "/public", PATH_HOME . VENDOR . $this->lib . "/public");
+            if(file_exists(PATH_HOME . "public/overload/" . $setor . "/" . $this->lib)) {
+                Helper::recurseCopy(PATH_HOME . "public/overload/" . $setor . "/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
+
             } elseif(file_exists(PATH_HOME . "public/overload/" . $this->lib)) {
                 Helper::recurseCopy(PATH_HOME . "public/overload/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
+
             }
         }
     }

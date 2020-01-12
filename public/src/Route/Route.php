@@ -8,7 +8,7 @@
 
 namespace Route;
 
-use Helpers\Helper;
+use Config\Config;
 
 class Route
 {
@@ -32,8 +32,10 @@ class Route
         else
             $url = str_replace([PATH_HOME, HOME], '', $url);
 
-        $this->searchRoute($url);
-        $this->ifDevUpdateVendorCache();
+        $paths = empty($url) || $url === "/" ? ["index"] : array_filter(explode('/', $url));
+        $libs = $this->getRouteFolders();
+        $this->searchFile($paths, $libs);
+        $this->searchOverload($libs);
     }
 
     /**
@@ -101,12 +103,36 @@ class Route
     }
 
     /**
-     * @param string $url
+     * Verifica Overloads para redeterminar a rota da view
      */
-    private function searchRoute(string $url)
+    private function searchOverload()
     {
-        $paths = empty($url) || $url === "/" ? ["index"] : array_filter(explode('/', $url));
-        $this->searchFile($paths, $this->getRouteFolders());
+        $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
+
+        /**
+         * Verifica overload in public para a view
+         */
+        if ($this->lib !== DOMINIO) {
+            if (($this->lib !== DOMINIO) && (file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".php") || file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".html"))) {
+                $this->route = "public/overload/{$this->lib}/" . $this->directory . "/{$setor}";
+            } elseif (($this->lib !== DOMINIO) && (file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".php") || file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".html"))) {
+                $this->route = "public/overload/{$this->lib}/" . $this->directory;
+            } else {
+
+                /**
+                 * Verifica overload in VENDOR se não encontrou overload in public
+                 */
+                foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
+                    if (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/{$setor}/" . $this->file . ".php") || file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/{$setor}/" . $this->file . ".html")) {
+                        $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $setor;
+                        break;
+                    } elseif (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".php") || file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".html")) {
+                        $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory;
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -119,7 +145,7 @@ class Route
         if (count($paths) === 1) {
             if (!$this->route = $this->findRoute($paths[0], $listFolder)){
                 $this->directory = "view";
-                $this->route = $this->findRoute("404", $this->getRouteFolders());
+                $this->route = $this->findRoute("404", $listFolder);
             }
         } else {
 
@@ -159,7 +185,7 @@ class Route
      */
     private function getRouteFolders()
     {
-        $rotas = \Config\Config::getViewPermissoes();
+        $rotas = Config::getViewPermissoes();
         $libsPath[] = [DOMINIO => "public/{$this->directory}"];
 
         //verifica rotas com o setor
@@ -176,47 +202,5 @@ class Route
         }, $rotas));
 
         return $libsPath;
-    }
-
-    /**
-     * Se estiver em Desenvolvimento
-     * Atualiza todos os arquivos de cache do vendor que possui a Rota
-     */
-    private function ifDevUpdateVendorCache()
-    {
-        if(DEV && $this->directory === "view" && $this->lib !== DOMINIO && file_exists(PATH_HOME . VENDOR . $this->lib . "/public")) {
-            //restaura original from VENDOR
-
-            $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
-
-            /**
-             * Cria uma cópia de vendor em libs
-             */
-            Helper::createFolderIfNoExist(PATH_HOME . VENDOR . $this->lib . "/publicTmp");
-            Helper::recurseCopy(PATH_HOME . "vendor/ueb/" . $this->lib . "/public/", PATH_HOME . VENDOR . $this->lib . "/publicTmp");
-            rename(PATH_HOME . VENDOR . $this->lib . "/public", PATH_HOME . VENDOR . $this->lib . "/publicOld");
-            rename(PATH_HOME . VENDOR . $this->lib . "/publicTmp", PATH_HOME . VENDOR . $this->lib . "/public");
-            Helper::recurseDelete(PATH_HOME . VENDOR . $this->lib . "/publicOld");
-
-            //caso não tenha arquivos overload no projeto atual, passa a verificar nas libs
-            foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-                if(file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $setor . "/" . $this->lib)) {
-                    Helper::recurseCopy(PATH_HOME . VENDOR . $lib . "/public/overload/" . $setor . "/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
-
-                } elseif(file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib)) {
-                    Helper::recurseCopy(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
-
-                }
-            }
-
-            //substitui com overload public
-            if(file_exists(PATH_HOME . "public/overload/" . $setor . "/" . $this->lib)) {
-                Helper::recurseCopy(PATH_HOME . "public/overload/" . $setor . "/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
-
-            } elseif(file_exists(PATH_HOME . "public/overload/" . $this->lib)) {
-                Helper::recurseCopy(PATH_HOME . "public/overload/" . $this->lib, PATH_HOME . VENDOR . $this->lib . "/public");
-
-            }
-        }
     }
 }

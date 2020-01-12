@@ -8,6 +8,7 @@
 
 namespace Route;
 
+use Config\Config;
 use Conn\Read;
 use Config\UpdateSystem;
 use Entity\Dicionario;
@@ -63,8 +64,8 @@ class Link extends Route
         $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
 
         /* Se não existir os assets Core, cria eles */
-        if (!file_exists(PATH_HOME . "assetsPublic/" . $setor . "/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/" . $setor . "/core.min.css"))
-            new UpdateSystem(['assets']);
+        if (!file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.css"))
+            Config::createCore();
 
         if(DEV && $dir === "view" && @file_get_contents(REPOSITORIO)) {
             if(file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js"))

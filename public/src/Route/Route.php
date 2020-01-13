@@ -9,6 +9,7 @@
 namespace Route;
 
 use Config\Config;
+use Helper\Helper;
 
 class Route
 {

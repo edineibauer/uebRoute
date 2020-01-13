@@ -71,7 +71,7 @@ class Link extends Route
          * Se estiver em Desenvolvimento, ou se não existir.
          * Atualiza os Core
          */
-        if (!file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.css"))
+        if ((DEV && $dir === "view") || !file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.css"))
             Config::createCore();
 
         /**

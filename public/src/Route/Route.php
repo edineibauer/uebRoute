@@ -9,7 +9,7 @@
 namespace Route;
 
 use Config\Config;
-use Helper\Helper;
+use Helpers\Helper;
 
 class Route
 {
@@ -36,7 +36,7 @@ class Route
         $paths = empty($url) || $url === "/" ? ["index"] : array_filter(explode('/', $url));
         $libs = $this->getRouteFolders();
         $this->searchFile($paths, $libs);
-        $this->searchOverload($libs);
+        $this->searchOverload();
     }
 
     /**

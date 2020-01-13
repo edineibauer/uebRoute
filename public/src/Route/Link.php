@@ -9,6 +9,7 @@
 namespace Route;
 
 use Config\Config;
+use Config\UpdateSystem;
 
 class Link extends Route
 {
@@ -59,13 +60,19 @@ class Link extends Route
      */
     private function checkAssetsExist(string $dir, string $setor)
     {
+        /**
+         * Se estiver em Desenvolvimento, ou se não existir.
+         * Atualiza os Core
+         */
+        if (!file_exists(PATH_HOME . "assetsPublic/appCore.min.js") || !file_exists(PATH_HOME . "assetsPublic/appCore.min.css"))
+            new UpdateSystem(["assets"]);
 
         /**
          * Se estiver em Desenvolvimento, ou se não existir.
          * Atualiza os Core
          */
         if (!file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.css"))
-            Config::createCore();
+            Config::createCore($this->param);
 
         /**
          * Se estiver em Desenvolvimento, ou se não existir.
@@ -98,14 +105,14 @@ class Link extends Route
     {
         $titulo = ucwords(str_replace(["-", "_"], " ", $file));
 
-        $data = array_merge($this->param['data'], [
+        $data = [
             "title" => $this->param['data']['title'] ?? $titulo,
             "titulo" => $this->param['data']['title'] ?? $titulo,
             "sitename" => SITENAME,
             "SITENAME" => SITENAME,
             "sitesub" => SITESUB,
-            "SITESUB" => SITESUB,
-        ]);
+            "SITESUB" => SITESUB
+        ];
 
         if (preg_match('/{{/i', $title)) {
             foreach (explode('{{', $title) as $i => $item) {

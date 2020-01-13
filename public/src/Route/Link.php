@@ -50,6 +50,7 @@ class Link extends Route
         $this->param['login'] = ($this->param['loged'] ? $_SESSION['userlogin'] : "");
         $this->param['email'] = defined("EMAIL") && !empty(EMAIL) ? EMAIL : "contato@" . DOMINIO;
         $this->param['menu'] = "";
+        $this->param['variaveis'] = parent::getVariaveis();
     }
 
     /**

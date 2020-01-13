@@ -65,7 +65,7 @@ class Link extends Route
          * Atualiza os Core
          */
         if (!file_exists(PATH_HOME . "assetsPublic/appCore.min.js") || !file_exists(PATH_HOME . "assetsPublic/appCore.min.css"))
-            new UpdateSystem(["assets"]);
+            new UpdateSystem(["assets", "manifest"]);
 
         /**
          * Se estiver em Desenvolvimento, ou se não existir.

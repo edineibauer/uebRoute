@@ -72,7 +72,7 @@ class Link extends Route
          * Atualiza os Core
          */
         if (!file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.css"))
-            Config::createCore($this->param);
+            Config::createCore();
 
         /**
          * Se estiver em Desenvolvimento, ou se não existir.

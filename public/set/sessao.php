@@ -33,6 +33,7 @@ if (!empty($_COOKIE['token']) && $_COOKIE['token'] != "0") {
              * Se não tiver sessão no back, cria a sessão
              */
             $login = new Login(["user" => $sql->getResult()[0]['nome'], "password" => $sql->getResult()[0]['password']], !1);
+            $data['data'] = $login->getResult();
 
         } else {
             /**
@@ -49,13 +50,12 @@ if (!empty($_COOKIE['token']) && $_COOKIE['token'] != "0") {
                         unset($usuario['preview']);
                     }
                     $_SESSION['userlogin'] = $usuario;
+                    $data['data'] = $usuario;
                 } else {
                     sessionEnd();
                 }
             }
         }
-
-        $data['data'] = 1;
 
     } else {
         /**

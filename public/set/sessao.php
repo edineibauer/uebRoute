@@ -14,13 +14,9 @@ $prazoTokenExpira = date('Y-m-d', strtotime("-12 months", strtotime(date("Y-m-d"
  */
 function sessionEnd()
 {
-    if (isset($_SESSION['userlogin']['id'])) {
-        $del = new Delete();
-        $del->exeDelete("usuarios_token", "WHERE usuario = :u", "u={$_SESSION['userlogin']['id']}");
-        unset($_SESSION['userlogin']);
-    } else {
-        $data['data'] = 2;
-    }
+    $del = new Delete();
+    $del->exeDelete("usuarios_token", "WHERE usuario = :u", "u={$_SESSION['userlogin']['id']}");
+    unset($_SESSION['userlogin']);
 }
 
 /**
@@ -53,8 +49,10 @@ if (!empty($_COOKIE['token']) && $_COOKIE['token'] != "0") {
                     }
                     $_SESSION['userlogin'] = $usuario;
                     $data['data'] = $usuario;
-                } else {
+
+                } elseif (isset($_SESSION['userlogin']['id'])) {
                     sessionEnd();
+                    $data['data'] = 2;
                 }
             }
         }
@@ -63,12 +61,18 @@ if (!empty($_COOKIE['token']) && $_COOKIE['token'] != "0") {
         /**
          * Se não encontrar o token corrente, termina a sessão
          */
-        sessionEnd();
+        if (isset($_SESSION['userlogin']['id'])) {
+            sessionEnd();
+            $data['data'] = 2;
+        }
     }
 
 } else {
     /**
      * Se não tiver token corrente, termina a sessão
      */
-    sessionEnd();
+    if (isset($_SESSION['userlogin']['id'])) {
+        sessionEnd();
+        $data['data'] = 2;
+    }
 }

@@ -18,6 +18,8 @@ function sessionEnd()
         $del = new Delete();
         $del->exeDelete("usuarios_token", "WHERE usuario = :u", "u={$_SESSION['userlogin']['id']}");
         unset($_SESSION['userlogin']);
+    } else {
+        $data['data'] = 2;
     }
 }
 

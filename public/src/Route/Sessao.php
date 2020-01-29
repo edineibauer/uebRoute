@@ -48,7 +48,7 @@ class Sessao
     }
 
     /**
-     * @param array $usuario
+     * @param array $users
      */
     private function exeLogin(array $users)
     {
@@ -76,9 +76,9 @@ class Sessao
         }
 
         //busca informações do grupo de usuário pertencente
-        if (!empty($user)) {
+//        if (!empty($user)) {
             $user['groupData'] = "";
-            if (!empty($user['setorData'])) {
+            /*if (!empty($user['setorData'])) {
                 $dicionarios = Entity::dicionario(null, !0);
                 foreach ($dicionarios[$user['setor']]['dicionario'] as $meta) {
                     if ($meta['format'] === "list" && $dicionarios[$meta['relation']]['info']['user'] === 2 && !empty($user['setorData'][$meta['column']])) {
@@ -86,8 +86,8 @@ class Sessao
                         $user['groupData'] = ($read->getResult() ? $read->getResult()[0] : "");
                     }
                 }
-            }
-        }
+            }*/
+//        }
 
         $_SESSION['userlogin'] = $user;
         $_SESSION['userlogin']['imagem'] = "";

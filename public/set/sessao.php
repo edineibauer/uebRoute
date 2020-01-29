@@ -50,10 +50,11 @@ if (!empty($_COOKIE['token']) && $_COOKIE['token'] != "0") {
                     $_SESSION['userlogin'] = $usuario;
                     $data['data'] = $usuario;
 
-                } elseif (isset($_SESSION['userlogin']['id'])) {
+                } else {
                     sessionEnd();
-                    $data['data'] = 2;
                 }
+            } else {
+                $data['data'] = 2;
             }
         }
 
@@ -63,6 +64,7 @@ if (!empty($_COOKIE['token']) && $_COOKIE['token'] != "0") {
          */
         if (isset($_SESSION['userlogin']['id'])) {
             sessionEnd();
+        } else {
             $data['data'] = 2;
         }
     }
@@ -73,6 +75,7 @@ if (!empty($_COOKIE['token']) && $_COOKIE['token'] != "0") {
      */
     if (isset($_SESSION['userlogin']['id'])) {
         sessionEnd();
+    } else {
         $data['data'] = 2;
     }
 }

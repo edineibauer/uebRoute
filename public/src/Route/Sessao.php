@@ -90,7 +90,12 @@ class Sessao
 //        }
 
         $_SESSION['userlogin'] = $user;
-        $_SESSION['userlogin']['imagem'] = "";
+        if(!empty($_SESSION['userlogin']['imagem'])) {
+            $_SESSION['userlogin']['imagem'] = json_decode($_SESSION['userlogin']['imagem'], !0)[0];
+            unset($_SESSION['userlogin']['imagem']['preview']);
+        } else {
+            $_SESSION['userlogin']['imagem'] = "";
+        }
         $_SESSION['userlogin']['token'] = $_COOKIE['token'];
     }
 }

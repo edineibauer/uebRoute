@@ -50,16 +50,13 @@ if (!empty($_COOKIE['token']) && $_COOKIE['token'] != "0") {
                     $_SESSION['userlogin'] = $usuario;
                     $data['data'] = $usuario;
 
-                } elseif($usuario['setor'] === null) {
-                    $usuario['setor'] = "admin";
-                    $usuario['setorData'] = [];
-                    $data['data'] = $usuario;
-
                 } else {
                     sessionEnd();
                 }
             } else {
-                $data['data'] = 2;
+                $usuario['setor'] = "admin";
+                $usuario['setorData'] = [];
+                $data['data'] = $usuario;
             }
         }
 

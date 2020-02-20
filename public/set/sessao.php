@@ -38,6 +38,8 @@ if (!empty($_COOKIE['token']) && $_COOKIE['token'] != "0") {
              * Se tiver sessão no back, atualiza a sessão
              */
             $usuario = $sql->getResult()[0];
+            $usuario['token'] = $_COOKIE['token'];
+            unset($usuario['password']);
             if (!empty($usuario['setor'])) {
                 $read = new Read();
                 $read->exeRead($usuario['setor'], "WHERE usuarios_id = :ui", "ui={$usuario['id']}");

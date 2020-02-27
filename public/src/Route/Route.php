@@ -115,9 +115,9 @@ class Route
          */
         if ($this->lib !== DOMINIO) {
             if (($this->lib !== DOMINIO) && (file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".php") || file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".html"))) {
-                $this->route = "public/overload/{$this->lib}/" . $this->directory . "/{$setor}";
+                $this->route = "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".php";
             } elseif (($this->lib !== DOMINIO) && (file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".php") || file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".html"))) {
-                $this->route = "public/overload/{$this->lib}/" . $this->directory;
+                $this->route = "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".php";
             } else {
 
                 /**
@@ -125,10 +125,10 @@ class Route
                  */
                 foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
                     if (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/{$setor}/" . $this->file . ".php") || file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/{$setor}/" . $this->file . ".html")) {
-                        $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $setor;
+                        $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $setor . "/" . $this->file . ".php";
                         break;
                     } elseif (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".php") || file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".html")) {
-                        $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory;
+                        $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".php";
                         break;
                     }
                 }

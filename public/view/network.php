@@ -26,7 +26,7 @@ ob_start();
                        href="<?= HOME ?>">
                         <i class="material-icons padding-right"
                            style="font-size: 29px;position: absolute;left: 15px;top: 13px;">home</i>
-                        <span class="upper">Home</span>
+                        <span class="upper">Página inicial</span>
                     </a>
                 </div>
 

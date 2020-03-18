@@ -9,13 +9,13 @@ ob_start();
                     <div class="col s12">
                         <br>
                         <div class="col s12">
-                            <img src="<?= HOME ?>assetsPublic/img/nonetwork.svg?v=<?= VERSION ?>">
+                            <img width="50" height="50" style="width: 50px" src="<?= HOME ?>assetsPublic/img/nonetwork.svg?v=<?= VERSION ?>">
                         </div>
-                        <div class="panel font-xlarge font-light padding-32">
+                        <div class="col panel font-large font-light padding-12">
                             sem conexão
                         </div>
                         <p>
-                            acesse quando tiver conectado
+                            volte quando estiver conectado
                         </p>
                     </div>
                 </div>
@@ -25,7 +25,7 @@ ob_start();
                        style="text-decoration: none; margin: auto; float: initial; padding-left: 45px;border-radius: 5px;background: #eee;color: #222222;"
                        href="<?= HOME ?>">
                         <i class="material-icons padding-right"
-                           style="font-size: 29px;position: absolute;left: 15px;top: 13px;">home</i>
+                           style="font-size: 20px;position: absolute;left: 15px;top: 6px;">home</i>
                         <span class="upper">Página inicial</span>
                     </a>
                 </div>

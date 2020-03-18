@@ -9,7 +9,7 @@ ob_start();
                     <div class="col s12">
                         <br>
                         <div class="col s12">
-                            <img width="50" height="50" style="width: 50px" src="<?= HOME ?>assetsPublic/img/nonetwork.svg?v=<?= VERSION ?>">
+                            <img src="<?= HOME ?>assetsPublic/img/nonetwork.svg?v=<?= VERSION ?>">
                         </div>
                         <div class="col panel font-large font-light padding-12">
                             sem conexão
@@ -21,7 +21,7 @@ ob_start();
                 </div>
 
                 <div class="align-center">
-                    <a class="btn-large opacity hover-shadow color-white relative"
+                    <a class="btn opacity hover-shadow relative"
                        style="text-decoration: none; margin: auto; float: initial; padding-left: 45px;border-radius: 5px;background: #eee;color: #222222;"
                        href="<?= HOME ?>">
                         <i class="material-icons padding-right"

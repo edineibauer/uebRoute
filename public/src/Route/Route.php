@@ -116,11 +116,11 @@ class Route
         if ($this->lib !== DOMINIO) {
             if (file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".php")) {
                 $this->route = "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".php";
-            } elseif (file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".html")) {
+            } elseif ($this->directory === "view" && file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".html")) {
                 $this->route = "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".html";
             } elseif (file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".php")) {
                 $this->route = "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".php";
-            } elseif (file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".html")) {
+            } elseif ($this->directory === "view" && file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".html")) {
                 $this->route = "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".html";
             } else {
 
@@ -131,13 +131,13 @@ class Route
                     if (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/{$setor}/" . $this->file . ".php")) {
                         $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $setor . "/" . $this->file . ".php";
                         break;
-                    } elseif (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/{$setor}/" . $this->file . ".html")) {
+                    } elseif ($this->directory === "view" && file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/{$setor}/" . $this->file . ".html")) {
                         $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $setor . "/" . $this->file . ".html";
                         break;
                     } elseif (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".php")) {
                         $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".php";
                         break;
-                    } elseif (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".html")) {
+                    } elseif ($this->directory === "view" && file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".html")) {
                         $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".html";
                         break;
                     }

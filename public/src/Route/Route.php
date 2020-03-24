@@ -114,21 +114,31 @@ class Route
          * Verifica overload in public para a view
          */
         if ($this->lib !== DOMINIO) {
-            if (($this->lib !== DOMINIO) && (file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".php") || file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".html"))) {
+            if (file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".php")) {
                 $this->route = "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".php";
-            } elseif (($this->lib !== DOMINIO) && (file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".php") || file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".html"))) {
+            } elseif (file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".html")) {
+                $this->route = "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".html";
+            } elseif (file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".php")) {
                 $this->route = "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".php";
+            } elseif (file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".html")) {
+                $this->route = "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".html";
             } else {
 
                 /**
                  * Verifica overload in VENDOR se não encontrou overload in public
                  */
                 foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-                    if (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/{$setor}/" . $this->file . ".php") || file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/{$setor}/" . $this->file . ".html")) {
+                    if (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/{$setor}/" . $this->file . ".php")) {
                         $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $setor . "/" . $this->file . ".php";
                         break;
-                    } elseif (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".php") || file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".html")) {
+                    } elseif (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/{$setor}/" . $this->file . ".html")) {
+                        $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $setor . "/" . $this->file . ".html";
+                        break;
+                    } elseif (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".php")) {
                         $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".php";
+                        break;
+                    } elseif (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".html")) {
+                        $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".html";
                         break;
                     }
                 }
@@ -173,6 +183,10 @@ class Route
                     $url = explode('/', $path);
                     $this->file = array_pop($url);
                     return "{$item}/{$path}.php";
+                } elseif (file_exists(PATH_HOME . "{$item}/{$path}.html")) {
+                    $url = explode('/', $path);
+                    $this->file = array_pop($url);
+                    return "{$item}/{$path}.html";
                 }
             }
         }

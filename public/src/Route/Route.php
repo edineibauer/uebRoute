@@ -34,8 +34,7 @@ class Route
             $url = str_replace([PATH_HOME, HOME], '', $url);
 
         $paths = empty($url) || $url === "/" ? ["index"] : array_filter(explode('/', $url));
-        $libs = $this->getRouteFolders();
-        $this->searchFile($paths, $libs);
+        $this->searchFile($paths, $this->getRouteFolders());
         $this->searchOverload();
     }
 
@@ -200,18 +199,17 @@ class Route
      */
     private function getRouteFolders()
     {
-        $rotas = Config::getViewPermissoes();
-        $libsPath[] = [DOMINIO => "public/{$this->directory}"];
+        $rotas = Helper::listFolder(PATH_HOME . VENDOR);
+        $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
+        $libsPath = [];
 
         //verifica rotas com o setor
-        if (!empty($_SESSION['userlogin'])) {
-            $libsPath[][DOMINIO] = "public/{$this->directory}/{$_SESSION['userlogin']['setor']}";
-            $libsPath = array_merge($libsPath, array_map(function ($class) {
-                return [$class => VENDOR . $class . "/public/{$this->directory}/{$_SESSION['userlogin']['setor']}"];
-            }, $rotas));
-        }
+        $libsPath[][DOMINIO] = "public/{$this->directory}/{$setor}";
+        $libsPath = array_merge($libsPath, array_map(function ($class) use ($setor) {
+            return [$class => VENDOR . $class . "/public/{$this->directory}/{$setor}"];
+        }, $rotas));
 
-        //rotas das libs
+        $libsPath[] = [DOMINIO => "public/{$this->directory}"];
         $libsPath = array_merge($libsPath, array_map(function ($class) {
             return [$class => VENDOR . $class . "/public/{$this->directory}"];
         }, $rotas));

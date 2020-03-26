@@ -45,7 +45,7 @@ class Link extends Route
     private function createParamResponse(string $setor)
     {
         $this->param['title'] = (empty($this->param['title']) ? $this->getTitle(parent::getFile()) : $this->prepareTitle($this->param['title'], parent::getFile()));
-        $this->param['css'] = file_get_contents(PATH_HOME . "assetsPublic/view/" . (file_exists(PATH_HOME . "assetsPublic/view/" . $setor . "/" . parent::getFile() . ".min.css") ? $setor . "/" : "") . parent::getFile() . ".min.css");
+        $this->param['css'] = (file_exists(PATH_HOME . "assetsPublic/view/" . $setor . "/" . parent::getFile() . ".min.css") ? file_get_contents(PATH_HOME . "assetsPublic/view/" . $setor . "/" . parent::getFile() . ".min.css") : (file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css") ? file_get_contents(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css") : ""));
         $this->param['js'] = HOME . "assetsPublic/view/" . (file_exists(PATH_HOME . "assetsPublic/view/" . $setor . "/" . parent::getFile() . ".min.js") ? $setor . "/" : "") . parent::getFile() . ".min.js?v=" . VERSION;
         $this->param["url"] = parent::getFile() . (!empty(parent::getVariaveis()) ? "/" . implode('/', parent::getVariaveis()) : "");
         $this->param['loged'] = !empty($_SESSION['userlogin']);

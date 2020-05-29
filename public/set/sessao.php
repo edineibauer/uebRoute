@@ -45,6 +45,16 @@ if (!empty($_COOKIE['token']) && $_COOKIE['token'] != "0") {
                 $read->exeRead($usuario['setor'], "WHERE usuarios_id = :ui", "ui={$usuario['id']}");
                 if ($read->getResult()) {
                     $usuario['setorData'] = $read->getResult()[0];
+
+                    $info = \Entity\Metadados::getInfo($usuario['setor']);
+                    $usuario['system'] = (!empty($info['system']) ? $info['system'] : "");
+                    $usuario['systemData'] = [];
+
+                    if(!empty($usuario['setorData']['system_id']) && !empty($info['system'])) {
+                        $read->exeRead($info['system'], "WHERE id = :id", "id={$usuario['setorData']['system_id']}");
+                        $usuario['systemData'] = $read->exeRead() ? $read->exeRead()[0] : [];
+                    }
+
                     if (!empty($usuario['imagem'])) {
                         $usuario['imagem'] = json_decode($usuario['imagem'], !0)[0];
                         unset($usuario['preview']);

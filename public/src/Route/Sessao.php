@@ -75,20 +75,6 @@ class Sessao
             $user = $users;
         }
 
-        //busca informações do grupo de usuário pertencente
-//        if (!empty($user)) {
-            $user['groupData'] = "";
-            /*if (!empty($user['setorData'])) {
-                $dicionarios = Entity::dicionario(null, !0);
-                foreach ($dicionarios[$user['setor']]['dicionario'] as $meta) {
-                    if ($meta['format'] === "list" && $dicionarios[$meta['relation']]['info']['user'] === 2 && !empty($user['setorData'][$meta['column']])) {
-                        $read->exeRead($meta['relation'], "WHERE id = :rid", "rid={$user['setorData'][$meta['column']]}");
-                        $user['groupData'] = ($read->getResult() ? $read->getResult()[0] : "");
-                    }
-                }
-            }*/
-//        }
-
         $_SESSION['userlogin'] = $user;
         if(!empty($_SESSION['userlogin']['imagem'])) {
             $_SESSION['userlogin']['imagem'] = json_decode($_SESSION['userlogin']['imagem'], !0)[0];

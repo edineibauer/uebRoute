@@ -46,13 +46,22 @@ if (!empty($_COOKIE['token']) && $_COOKIE['token'] != "0") {
                 if ($read->getResult()) {
                     $usuario['setorData'] = $read->getResult()[0];
 
+                    $dicionario = \Entity\Metadados::getDicionario($usuario['setor']);
                     $info = \Entity\Metadados::getInfo($usuario['setor']);
+
                     $usuario['system'] = (!empty($info['system']) ? $info['system'] : "");
                     $usuario['systemData'] = [];
 
-                    if(!empty($usuario['setorData']['system_id']) && !empty($info['system'])) {
-                        $read->exeRead($info['system'], "WHERE id = :id", "id={$usuario['setorData']['system_id']}");
-                        $usuario['systemData'] = $read->exeRead() ? $read->exeRead()[0] : [];
+                    if(!empty($usuario['system'])) {
+                        foreach ($dicionario as $dic) {
+                            if($dic['relation'] === $usuario['system']) {
+                                $read->exeRead($usuario['system'], "WHERE id = :id", "id={$usuario['setorData'][$dic['column']]}");
+                                $usuario['systemData'] = $read->getResult() ? $read->getResult()[0] : [];
+                                $usuario['system_id'] = $usuario['systemData']['id'];
+                                $usuario['setorData']['system_id'] = $usuario['systemData']['id'];
+                                break;
+                            }
+                        }
                     }
 
                     if (!empty($usuario['imagem'])) {

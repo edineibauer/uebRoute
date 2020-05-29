@@ -2,7 +2,6 @@
 
 use Conn\Delete;
 use Conn\Read;
-use Conn\Update;
 use Login\Login;
 
 $data['data'] = 0;

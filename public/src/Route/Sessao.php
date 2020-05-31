@@ -13,12 +13,13 @@ class Sessao
         if (session_status() == PHP_SESSION_NONE)
             session_start();
 
-        if (empty($_SESSION['userlogin']['token']) && !empty($_COOKIE['token']) && $_COOKIE['token'] !== "0") {
+        if (empty($_SESSION['userlogin']['token'])) {
 
             //não tenho sessão, mas tenho cookies
-            $this->cookieLogin();
+            if(!empty($_COOKIE['token']) && $_COOKIE['token'] !== "0")
+                $this->cookieLogin();
 
-        } else if (!empty($_SESSION['userlogin']['token']) && isset($_COOKIE['token']) && $_COOKIE['token'] !== $_SESSION['userlogin']['token']) {
+        } else if (isset($_COOKIE['token']) && $_COOKIE['token'] !== $_SESSION['userlogin']['token']) {
             //tenho ambos, cookie e login, mas são diferentes
             setcookie("token", '', -1);
             new Logout();

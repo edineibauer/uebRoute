@@ -1,15 +1,14 @@
 <?php
 
 /**
- * Busca por arquivo a ser carregado em um request ao sistema Singular
+ * Find and return the view file and where the view file is
  *
- * @copyright (c) 2018, Edinei J. Bauer
+ * @copyright (c) 2020, Edinei J. Bauer
  */
 
 namespace Route;
 
 use Config\Config;
-use Helpers\Helper;
 
 class Route
 {
@@ -20,22 +19,42 @@ class Route
     private $variaveis;
 
     /**
-     * Route constructor.
      * @param string|null $url
      * @param string|null $dir
      */
     public function __construct(string $url = null, string $dir = null)
     {
-        $this->directory = $dir ?? "view";
-        $this->variaveis = [];
-        if (!$url)
-            $url = strip_tags(trim(filter_input(INPUT_GET, 'url', FILTER_DEFAULT)));
-        else
-            $url = str_replace([PATH_HOME, HOME], '', $url);
+        /**
+         * format the url
+         */
+        $url = (!$url ? strip_tags(trim(filter_input(INPUT_GET, 'url', FILTER_DEFAULT))) : str_replace([PATH_HOME, HOME], '', $url));
+        $url = empty($url) || $url === "/" ? "index" : $url;
 
-        $paths = empty($url) || $url === "/" ? ["index"] : array_filter(explode('/', $url));
-        $this->searchFile($paths, $this->getRouteFolders());
-        $this->searchOverload();
+        /**
+         * Set default view as 404
+         */
+        $this->directory = $dir ?? "view";
+        $this->file = "404";
+        $this->lib = "config";
+        $this->route = VENDOR . $this->lib ."/public/view/404/404.php";
+        $this->variaveis = array_filter(explode('/', $url));
+        $route = array_shift($this->variaveis);
+        $setor = Config::getSetor();
+
+        /**
+         * Find the view requested and set as route, if find
+         */
+        foreach (Config::getRoutesTo($this->directory) as $viewFolder) {
+
+            if(($viewExtensionPhp = file_exists($viewFolder . $route . "/" . $route . ".php")) || file_exists($viewFolder . $route . "/" . $route . ".html")) {
+                $this->file = $route;
+                $this->route = str_replace(PATH_HOME, "", $viewFolder . $route . "/" . $this->file . ($viewExtensionPhp ? ".php" : ".html"));
+                $this->lib = str_replace([PATH_HOME, VENDOR, "public/" . $this->directory . "/" . $setor . "/", "public/" . $this->directory . "/"], "", $viewFolder);
+                $this->lib = $this->lib === "" ? DOMINIO : $this->lib;
+
+                break;
+            }
+        }
     }
 
     /**
@@ -100,120 +119,5 @@ class Route
     protected function setVariaveis(array $variaveis)
     {
         $this->variaveis = $variaveis;
-    }
-
-    /**
-     * Verifica Overloads para redeterminar a rota da view
-     */
-    private function searchOverload()
-    {
-        $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
-
-        /**
-         * Verifica overload in public para a view
-         */
-        if ($this->lib !== DOMINIO) {
-            if (file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".php")) {
-                $this->route = "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".php";
-            } elseif ($this->directory === "view" && file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".html")) {
-                $this->route = "public/overload/{$this->lib}/" . $this->directory . "/{$setor}/" . $this->file . ".html";
-            } elseif (file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".php")) {
-                $this->route = "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".php";
-            } elseif ($this->directory === "view" && file_exists(PATH_HOME . "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".html")) {
-                $this->route = "public/overload/{$this->lib}/" . $this->directory . "/" . $this->file . ".html";
-            } else {
-
-                /**
-                 * Verifica overload in VENDOR se não encontrou overload in public
-                 */
-                foreach (Helper::listFolder(PATH_HOME . VENDOR) as $lib) {
-                    if (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/{$setor}/" . $this->file . ".php")) {
-                        $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $setor . "/" . $this->file . ".php";
-                        break;
-                    } elseif ($this->directory === "view" && file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/{$setor}/" . $this->file . ".html")) {
-                        $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $setor . "/" . $this->file . ".html";
-                        break;
-                    } elseif (file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".php")) {
-                        $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".php";
-                        break;
-                    } elseif ($this->directory === "view" && file_exists(PATH_HOME . VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".html")) {
-                        $this->route = VENDOR . $lib . "/public/overload/" . $this->lib . "/" . $this->directory . "/" . $this->file . ".html";
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Busca por File
-     * @param array $paths
-     * @param array $listFolder
-     */
-    private function searchFile(array $paths, array $listFolder)
-    {
-        if (count($paths) === 1) {
-            if (!$this->route = $this->findRoute($paths[0], $listFolder)){
-                $this->directory = "view";
-                $this->route = $this->findRoute("404", $listFolder);
-            }
-        } else {
-
-            $path = implode('/', $paths);
-            if (!$this->route = $this->findRoute($path, $listFolder)) {
-                $this->variaveis[] = array_pop($paths);
-                $this->searchFile($paths, $listFolder);
-            }
-        }
-    }
-
-    /**
-     * Busca por rota
-     *
-     * @param string $path
-     * @param array $listFolder
-     * @return null|string
-     */
-    private function findRoute(string $path, array $listFolder)
-    {
-        foreach ($listFolder as $lib) {
-            foreach ($lib as $this->lib => $item) {
-                if (file_exists(PATH_HOME . "{$item}/{$path}.php")) {
-                    $url = explode('/', $path);
-                    $this->file = array_pop($url);
-                    return "{$item}/{$path}.php";
-                } elseif (file_exists(PATH_HOME . "{$item}/{$path}.html")) {
-                    $url = explode('/', $path);
-                    $this->file = array_pop($url);
-                    return "{$item}/{$path}.html";
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Obtém a lista de diretórios onde a rota pode estar
-     * @return array
-     */
-    private function getRouteFolders()
-    {
-        $rotas = Helper::listFolder(PATH_HOME . VENDOR);
-        $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
-        $libsPath = [];
-
-        //verifica rotas com o setor
-        $libsPath[][DOMINIO] = "public/{$this->directory}/{$setor}";
-        $libsPath = array_merge($libsPath, array_map(function ($class) use ($setor) {
-            return [$class => VENDOR . $class . "/public/{$this->directory}/{$setor}"];
-        }, $rotas));
-
-        $libsPath[] = [DOMINIO => "public/{$this->directory}"];
-        $libsPath = array_merge($libsPath, array_map(function ($class) {
-            return [$class => VENDOR . $class . "/public/{$this->directory}"];
-        }, $rotas));
-
-        return $libsPath;
     }
 }

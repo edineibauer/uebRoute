@@ -1,9 +1,10 @@
 <?php
 
 /**
- * Responável por gerenciar e fornecer informações sobre o link url!
+ * This class get view content and assets
+ * update the assets if need
  *
- * @copyright (c) 2018, Edinei J. Bauer
+ * @copyright (c) 2020, Edinei J. Bauer
  */
 
 namespace Route;
@@ -14,21 +15,23 @@ use Config\UpdateSystem;
 class Link extends Route
 {
     private $param;
+    private $directory;
 
     /**
-     * Link constructor.
      * @param string|null $url
      * @param string|null $dir
      */
     function __construct(string $url = null, string $dir = null)
     {
-        $dir = $dir ?? "view";
-        parent::__construct($url, $dir);
+        $this->directory = $dir ?? "view";
+        parent::__construct($url, $this->directory);
 
-        $setor = !empty($_SESSION['userlogin']) ? $_SESSION['userlogin']['setor'] : "0";
-        $this->param = Config::getViewParam(parent::getFile(), parent::getLib(), $setor);
-        $this->checkAssetsExist($dir, $setor);
-        $this->createParamResponse($setor);
+        $this->param = Config::getViewParam(parent::getFile(), parent::getLib());
+
+        $setor = Config::getSetor();
+        $this->coreAssetsUpdate($setor);
+        $this->viewAssetsUpdate($setor);
+        $this->formatParam($setor);
     }
 
     /**
@@ -40,100 +43,77 @@ class Link extends Route
     }
 
     /**
+     * Format the param response data
      * @param string $setor
      */
-    private function createParamResponse(string $setor)
+    private function formatParam(string $setor)
     {
-        $this->param['title'] = (empty($this->param['title']) ? $this->getTitle(parent::getFile()) : $this->prepareTitle($this->param['title'], parent::getFile()));
-        $this->param['css'] = (file_exists(PATH_HOME . "assetsPublic/view/" . $setor . "/" . parent::getFile() . ".min.css") ? file_get_contents(PATH_HOME . "assetsPublic/view/" . $setor . "/" . parent::getFile() . ".min.css") : (file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css") ? file_get_contents(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css") : ""));
-        $this->param['js'] = HOME . "assetsPublic/view/" . (file_exists(PATH_HOME . "assetsPublic/view/" . $setor . "/" . parent::getFile() . ".min.js") ? $setor . "/" : "") . parent::getFile() . ".min.js?v=" . VERSION;
-        $this->param["url"] = parent::getFile() . (!empty(parent::getVariaveis()) ? "/" . implode('/', parent::getVariaveis()) : "");
-        $this->param['loged'] = !empty($_SESSION['userlogin']);
-        $this->param['login'] = ($this->param['loged'] ? $_SESSION['userlogin'] : "");
-        $this->param['email'] = defined("EMAIL") && !empty(EMAIL) ? EMAIL : "contato@" . DOMINIO;
-        $this->param['menu'] = "";
+        $this->param['title'] = $this->formatTitle($this->param['title'] ?? parent::getFile());
+        $this->param['css'] = file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.css") ? file_get_contents(PATH_HOME . "assetsPublic/view/" . $setor . "/" . parent::getFile() . ".min.css") : "";
+        $this->param['js'] = file_exists(PATH_HOME . "assetsPublic/view/{$setor}/"  . parent::getFile() . ".min.js") ? HOME . "assetsPublic/view/{$setor}/"  . parent::getFile() . ".min.js?v=" . VERSION : "";
         $this->param['variaveis'] = parent::getVariaveis();
     }
 
     /**
-     * Verifica se os assets existem ou se esta em DEV para atualizar
-     *
-     * @param string $dir
+     * Check if the view Core need to be updated
      * @param string $setor
      */
-    private function checkAssetsExist(string $dir, string $setor)
+    private function coreAssetsUpdate(string $setor)
     {
         /**
-         * Se estiver em Desenvolvimento, ou se não existir.
-         * Atualiza os Core
+         * If the appCore assets not exist, so create
          */
         if (!file_exists(PATH_HOME . "assetsPublic/appCore.min.js") || !file_exists(PATH_HOME . "assetsPublic/appCore.min.css"))
-            new UpdateSystem(["assets", "manifest"]);
+            new UpdateSystem();
 
         /**
-         * Se estiver em Desenvolvimento, ou se não existir.
-         * Atualiza os Core
+         * If the core setor assets not exist or if in DEV mode, so update
          */
-        if ((DEV && $dir === "view") || !file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.css"))
+        if (DEV || !file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.css"))
             Config::createCore();
-
-        /**
-         * Se estiver em Desenvolvimento, ou se não existir.
-         * Atualiza o JS e CSS da view atualmente requisitada
-         */
-        if ((DEV && $dir === "view") || !file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.js") || !file_exists(PATH_HOME . "assetsPublic/view/" . parent::getFile() . ".min.css"))
-            Config::createViewAssets(parent::getFile(), ["js" => $this->param['js'], "css" => $this->param['css']], parent::getLib());
     }
 
     /**
-     * @param string $file
-     * @return string
+     * Check if the view Assests need to be updated
+     * @param string $setor
      */
-    private function getTitle(string $file): string
+    private function viewAssetsUpdate(string $setor)
     {
-        if (empty($this->param['data']['title']))
-            return ucwords(str_replace(["-", "_"], " ", $file)) . (!empty(parent::getVariaveis()) ? " | " . SITENAME : "");
+        if($this->directory === "view") {
+            /**
+             * If in DEV mode, so update JS and CSS from view
+             */
+            if (DEV) {
+                Config::createPageJs($this->getFile(), $this->getLib(), $setor);
+                Config::createPageCss($this->getFile(), $this->getLib(), $setor);
 
-        return $this->param['data']['title'];
-    }
+                /**
+                 * If JS view not exist on minify cache folder, then create
+                 */
+            } elseif(!file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.js")) {
+                Config::createPageJs($this->getFile(), $this->getLib(), $setor);
 
-    /**
-     * Prepara o formato do título caso tenha variáveis
-     *
-     * @param string $title
-     * @param string $file
-     * @return string
-     */
-    private function prepareTitle(string $title, string $file): string
-    {
-        $titulo = ucwords(str_replace(["-", "_"], " ", $file));
-
-        $data = [
-            "title" => $this->param['data']['title'] ?? $titulo,
-            "titulo" => $this->param['data']['title'] ?? $titulo,
-            "sitename" => SITENAME,
-            "SITENAME" => SITENAME,
-            "sitesub" => SITESUB,
-            "SITESUB" => SITESUB
-        ];
-
-        if (preg_match('/{{/i', $title)) {
-            foreach (explode('{{', $title) as $i => $item) {
-                if ($i > 0) {
-                    $variavel = explode('}}', $item)[0];
-                    $title = str_replace('{{' . $variavel . '}}', (!empty($data[$variavel]) ? $data[$variavel] : ""), $title);
-                }
-            }
-
-        } elseif (preg_match('/{\$/i', $title)) {
-            foreach (explode('{$', $title) as $i => $item) {
-                if ($i > 0) {
-                    $variavel = explode('}', $item)[0];
-                    $title = str_replace('{$' . $variavel . '}', (!empty($data[$variavel]) ? $data[$variavel] : ""), $title);
-                }
+                /**
+                 * If CSS view not exist on minify cache folder, then create
+                 */
+            } elseif(!file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.css")) {
+                Config::createPageCss($this->getFile(), $this->getLib(), $setor);
             }
         }
+    }
 
-        return $title;
+    /**
+     * return page title formated
+     *
+     * @param string $title
+     * @return string
+     */
+    private function formatTitle(string $title): string
+    {
+        return ucwords(str_replace(
+            ["{{sitename}}", '{$sitename}', "{{sitesub}}", '{$sitesub}', "{{sitedesc}}", '{$sitedesc}', "-", "_"],
+            [SITENAME, SITENAME, SITESUB, SITESUB, SITEDESC, SITEDESC, " ", " "],
+            $title
+        ));
     }
 }

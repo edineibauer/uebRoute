@@ -14,7 +14,6 @@ use Config\UpdateSystem;
 
 class Link extends Route
 {
-    private $param;
     private $directory;
 
     /**
@@ -26,20 +25,10 @@ class Link extends Route
         $this->directory = $dir ?? "view";
         parent::__construct($url, $this->directory);
 
-        $this->param = Config::getViewParam(parent::getFile(), parent::getLib());
-
         $setor = Config::getSetor();
         $this->coreAssetsUpdate($setor);
         $this->viewAssetsUpdate($setor);
         $this->formatParam($setor);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getParam()
-    {
-        return $this->param;
     }
 
     /**
@@ -84,8 +73,8 @@ class Link extends Route
              * If in DEV mode, so update JS and CSS from view
              */
             if (DEV) {
-                Config::createPageJs($this->getFile(), $this->getLib(), $setor);
-                Config::createPageCss($this->getFile(), $this->getLib(), $setor);
+                Config::createPageJs($this->getFile(), $this->getJs(), $setor);
+                Config::createPageCss($this->getFile(), $this->getCss(), $setor);
 
                 /**
                  * If JS view not exist on minify cache folder, then create

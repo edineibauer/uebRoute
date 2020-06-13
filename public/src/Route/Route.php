@@ -9,6 +9,7 @@
 namespace Route;
 
 use Config\Config;
+use Helpers\Helper;
 
 class Route
 {
@@ -16,13 +17,16 @@ class Route
     private $route;
     private $lib;
     private $file;
+    protected $param;
+    private $css = [];
+    private $js = [];
     private $variaveis;
 
     /**
      * @param string|null $url
      * @param string|null $dir
      */
-    public function __construct(string $url = null, string $dir = null)
+    public function __construct(string $url = null, string $dir = null, string $setor = null)
     {
         /**
          * format the url
@@ -36,25 +40,13 @@ class Route
         $this->directory = $dir ?? "view";
         $this->file = "404";
         $this->lib = "config";
-        $this->route = VENDOR . $this->lib ."/public/view/404/404.php";
+        $this->route = VENDOR . $this->lib . "/public/view/404/404.php";
         $this->variaveis = array_filter(explode('/', $url));
+        $this->param = $this->getParamBase();
         $route = array_shift($this->variaveis);
-        $setor = Config::getSetor();
 
-        /**
-         * Find the view requested and set as route, if find
-         */
-        foreach (Config::getRoutesTo($this->directory) as $viewFolder) {
-
-            if(($viewExtensionPhp = file_exists($viewFolder . $route . "/" . $route . ".php")) || file_exists($viewFolder . $route . "/" . $route . ".html")) {
-                $this->file = $route;
-                $this->route = str_replace(PATH_HOME, "", $viewFolder . $route . "/" . $this->file . ($viewExtensionPhp ? ".php" : ".html"));
-                $this->lib = str_replace([PATH_HOME, VENDOR, "public/" . $this->directory . "/" . $setor . "/", "public/" . $this->directory . "/"], "", $viewFolder);
-                $this->lib = $this->lib === "" ? DOMINIO : $this->lib;
-
-                break;
-            }
-        }
+        $this->findRoute($route, $setor);
+        $this->prepareAssets();
     }
 
     /**
@@ -63,6 +55,30 @@ class Route
     public function getVariaveis(): array
     {
         return $this->variaveis ?? [];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCss()
+    {
+        return $this->css;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getJs()
+    {
+        return $this->js;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getParam()
+    {
+        return $this->param;
     }
 
     /**
@@ -90,34 +106,119 @@ class Route
     }
 
     /**
-     * @param mixed $file
+     * default response Param from a view
+     * @return array
      */
-    protected function setFile($file)
+    private function getParamBase()
     {
-        $this->file = $file;
+        return [
+            "version" => VERSION,
+            "css" => [],
+            "js" => [],
+            "meta" => "",
+            "font" => "",
+            "title" => "",
+            "descricao" => "",
+            "data" => 0,
+            "front" => [],
+            "header" => !0,
+            "navbar" => !0,
+            "setor" => "",
+            "!setor" => "",
+            "redirect" => "403",
+            "vendor" => VENDOR
+        ];
     }
 
     /**
-     * @param mixed $lib
+     * Prepare Assets JS and CSS to include in view
      */
-    protected function setLib($lib)
+    private function prepareAssets()
     {
-        $this->lib = $lib;
+        /**
+         * for each css declared on param
+         * search on assets folder on each lib
+         */
+        if(!empty($this->param['js'])) {
+            foreach (Config::getRoutesFilesTo("assets", "js") as $f => $item) {
+                if (is_array($this->param['js'])) {
+                    foreach ($this->param['js'] as $js) {
+                        if(is_string($js) && $f === str_replace(".js", "", $js) . ".js") {
+                            $this->js[$f] = $item;
+                            break;
+                        }
+                    }
+                } elseif(is_string($this->param['js']) && $f === str_replace(".js", "", $this->param['js']) . ".js") {
+                    $this->js[$f] = $item;
+                }
+            }
+        }
+
+        /**
+         * for each javascript declared on param
+         * search on assets folder on each lib
+         */
+        if(!empty($this->param['css'])) {
+            foreach (Config::getRoutesFilesTo("assets", "css") as $f => $item) {
+                if (is_array($this->param['css'])) {
+                    foreach ($this->param['css'] as $css) {
+                        if(is_string($css) && $f === str_replace(".css", "", $css) . ".css") {
+                            $this->css[$f] = $item;
+                            break;
+                        }
+                    }
+                } elseif(is_string($this->param['css']) && $f === str_replace(".css", "", $this->param['css']) . ".css") {
+                    $this->css[$f] = $item;
+                }
+            }
+        }
     }
 
     /**
-     * @param mixed $route
+     * @param string $route
      */
-    protected function setRoute($route)
+    private function findRoute(string $route, string $setor = null)
     {
-        $this->route = $route;
-    }
 
-    /**
-     * @param array $variaveis
-     */
-    protected function setVariaveis(array $variaveis)
-    {
-        $this->variaveis = $variaveis;
+        $setor = $setor ?? Config::getSetor();
+        $find = !1;
+        $param = [];
+
+        /**
+         * Find the view requested and set as route, if find
+         */
+        foreach (Config::getRoutesTo($this->directory . "/" . $route) as $viewFolder) {
+
+            /**
+             * Busca pelo arquivo de HTML ou PHP da view
+             */
+            if (($viewExtensionPhp = file_exists($viewFolder . $route . ".php")) || file_exists($viewFolder . $route . ".html") && !$find) {
+                $this->file = $route;
+                $this->route = str_replace(PATH_HOME, "", $viewFolder . $this->file . ($viewExtensionPhp ? ".php" : ".html"));
+                $this->lib = str_replace([PATH_HOME, VENDOR, "public/" . $this->directory . "/" . $setor . "/", "public/" . $this->directory . "/"], "", $viewFolder);
+                $this->lib = $this->lib === "" ? DOMINIO : $this->lib;
+                $find = !0;
+            }
+
+            /**
+             * Busca pelos assets (JS, CSS e PARAM)
+             */
+            foreach (Helper::listFolder($viewFolder) as $item) {
+                $extensao = pathinfo($item, PATHINFO_EXTENSION);
+                if ($extensao === "js" && !isset($this->js[$item]))
+                    $this->js[$item] = $viewFolder . $item;
+                elseif ($extensao === "css" && !isset($this->css[$item]))
+                    $this->css[$item] = $viewFolder . $item;
+                elseif ($extensao === "json" && !isset($param[$item]))
+                    $param[$item] = $viewFolder . $item;
+            }
+        }
+
+        /**
+         * turn array list of param into a unique object
+         */
+        foreach ($param as $item)
+            $this->param = array_merge($this->param, json_decode(file_get_contents($item), !0));
+
     }
 }

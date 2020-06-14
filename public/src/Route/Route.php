@@ -195,7 +195,7 @@ class Route
             if (($viewExtensionPhp = file_exists($viewFolder . $route . ".php")) || file_exists($viewFolder . $route . ".html") && !$find) {
                 $this->file = $route;
                 $this->route = str_replace(PATH_HOME, "", $viewFolder . $this->file . ($viewExtensionPhp ? ".php" : ".html"));
-                $this->lib = str_replace([PATH_HOME, VENDOR, "public/" . $this->directory . "/" . $setor . "/", "public/" . $this->directory . "/"], "", $viewFolder);
+                $this->lib = str_replace([PATH_HOME, VENDOR, "public/" . $this->directory . "/{$route}/{$setor}/", "public/" . $this->directory . "/{$route}/", "/"], "", $viewFolder);
                 $this->lib = $this->lib === "" ? DOMINIO : $this->lib;
                 $find = !0;
             }

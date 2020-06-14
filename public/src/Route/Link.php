@@ -50,12 +50,6 @@ class Link extends Route
     private function coreAssetsUpdate(string $setor)
     {
         /**
-         * If the appCore assets not exist, so create
-         */
-        if (!file_exists(PATH_HOME . "assetsPublic/appCore.min.js") || !file_exists(PATH_HOME . "assetsPublic/appCore.min.css"))
-            new UpdateSystem();
-
-        /**
          * If the core setor assets not exist or if in DEV mode, so update
          */
         if (DEV || !file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.css"))

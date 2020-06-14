@@ -26,7 +26,6 @@ class Link extends Route
         parent::__construct($url, $this->directory);
 
         $setor = Config::getSetor();
-        $this->coreAssetsUpdate($setor);
         $this->viewAssetsUpdate($setor);
         $this->formatParam($setor);
     }
@@ -41,19 +40,6 @@ class Link extends Route
         $this->param['css'] = file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.css") ? file_get_contents(PATH_HOME . "assetsPublic/view/" . $setor . "/" . parent::getFile() . ".min.css") : "";
         $this->param['js'] = file_exists(PATH_HOME . "assetsPublic/view/{$setor}/"  . parent::getFile() . ".min.js") ? HOME . "assetsPublic/view/{$setor}/"  . parent::getFile() . ".min.js?v=" . VERSION : "";
         $this->param['variaveis'] = parent::getVariaveis();
-    }
-
-    /**
-     * Check if the view Core need to be updated
-     * @param string $setor
-     */
-    private function coreAssetsUpdate(string $setor)
-    {
-        /**
-         * If the core setor assets not exist or if in DEV mode, so update
-         */
-        if (DEV || !file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.js") || !file_exists(PATH_HOME . "assetsPublic/core/" . $setor . "/core.min.css"))
-            Config::createCore();
     }
 
     /**

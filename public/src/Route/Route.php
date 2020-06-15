@@ -143,7 +143,7 @@ class Route
             foreach (Config::getRoutesFilesTo("assets", "js") as $f => $item) {
                 if (is_array($this->param['js'])) {
                     foreach ($this->param['js'] as $js) {
-                        if(is_string($js) && $f === str_replace(".js", "", $js) . ".js") {
+                        if(is_string($js) && $f === pathinfo($js, PATHINFO_BASENAME) . ".js") {
                             $this->js[$f] = $item;
                             break;
                         }
@@ -162,7 +162,7 @@ class Route
             foreach (Config::getRoutesFilesTo("assets", "css") as $f => $item) {
                 if (is_array($this->param['css'])) {
                     foreach ($this->param['css'] as $css) {
-                        if(is_string($css) && $f === str_replace(".css", "", $css) . ".css") {
+                        if(is_string($css) && $f === pathinfo($css, PATHINFO_BASENAME) . ".css") {
                             $this->css[$f] = $item;
                             break;
                         }

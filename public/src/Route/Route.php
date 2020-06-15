@@ -116,7 +116,7 @@ class Route
             "css" => [],
             "js" => [],
             "meta" => "",
-            "font" => "",
+            "head" => [],
             "title" => "",
             "descricao" => "",
             "data" => 0,

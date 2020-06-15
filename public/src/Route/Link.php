@@ -105,8 +105,6 @@ class Link extends Route
                     $this->param['head'][$i] = str_replace("<meta ", "<meta id='{$i}' ", Config::replaceVariablesConfig($head));
                 }
             }
-        } else {
-            $this->param['head'] = [];
         }
     }
 

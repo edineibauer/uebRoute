@@ -40,6 +40,72 @@ class Link extends Route
         $this->param['css'] = file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.css") ? file_get_contents(PATH_HOME . "assetsPublic/view/" . $setor . "/" . parent::getFile() . ".min.css") : "";
         $this->param['js'] = file_exists(PATH_HOME . "assetsPublic/view/{$setor}/"  . parent::getFile() . ".min.js") ? HOME . "assetsPublic/view/{$setor}/"  . parent::getFile() . ".min.js?v=" . VERSION : "";
         $this->param['variaveis'] = parent::getVariaveis();
+
+        $this->createHeadMinify();
+    }
+
+    private function createHeadMinify()
+    {
+        /**
+         * tag head replace variables declaration
+         */
+        if(!empty($this->param['head'])) {
+            foreach ($this->param['head'] as $i => $head) {
+
+                /**
+                 * if is a css file to put on head, so Minify the content
+                 */
+                if(preg_match("/^<link /i", $head)) {
+
+                    //get the url and name of file
+                    $href = trim(explode( "'", explode("href='", str_replace('"', "'", $head))[1])[0]);
+                    $hrefFinal = Config::replaceVariablesConfig($href);
+                    $name = pathinfo($href, PATHINFO_BASENAME);
+                    if(DEV || !file_exists(PATH_HOME . "assetsPublic/{$name}") && file_exists($hrefFinal)) {
+                        /**
+                         * Minify the content, replace variables declaration and cache the file
+                         */
+                        $minify = new CSS(file_get_contents($hrefFinal));
+                        $f = fopen(PATH_HOME . "assetsPublic/{$name}", "w");
+                        fwrite($f, Config::replaceVariablesConfig($minify->minify()));
+                        fclose($f);
+                    }
+
+                    /**
+                     * Update head value with the cached minify css
+                     */
+                    $this->param['head'][$i] = str_replace("<link ", "<link id='{$i}' ", str_replace($href, HOME . "assetsPublic/{$name}", $head));
+
+                    /**
+                     * if is a JS file to put on head, so Minify the content
+                     */
+                } elseif(preg_match("/^<script /i", $head)) {
+
+                    //get the url and name of file
+                    $href = trim(explode( "'", explode("src='", str_replace('"', "'", $head))[1])[0]);
+                    $hrefFinal = Config::replaceVariablesConfig($href);
+                    $name = pathinfo($href, PATHINFO_BASENAME);
+                    if(DEV || !file_exists(PATH_HOME . "assetsPublic/{$name}") && file_exists($hrefFinal)) {
+                        /**
+                         * Minify the content, replace variables declaration and cache the file
+                         */
+                        $minify = new JS(file_get_contents($hrefFinal));
+                        $minify->minify(PATH_HOME . "assetsPublic/{$name}");
+                    }
+
+                    /**
+                     * Update head value with the cached minify css
+                     */
+                    $this->param['head'][$i] = str_replace("<script ", "<script id='{$i}' ", str_replace($href, HOME . "assetsPublic/{$name}", $head));
+                } elseif(preg_match("/^<meta /i", $head)) {
+
+                    /**
+                     * Default just replace variables of the string declaration
+                     */
+                    $this->param['head'][$i] = str_replace("<meta ", "<meta id='{$i}' ", Config::replaceVariablesConfig($head));
+                }
+            }
+        }
     }
 
     /**

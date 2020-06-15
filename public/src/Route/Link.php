@@ -65,7 +65,7 @@ class Link extends Route
                         /**
                          * Minify the content, replace variables declaration and cache the file
                          */
-                        $minify = new CSS(file_get_contents($hrefFinal));
+                        $minify = new \MatthiasMullie\Minify\CSS(file_get_contents($hrefFinal));
                         $f = fopen(PATH_HOME . "assetsPublic/{$name}", "w");
                         fwrite($f, Config::replaceVariablesConfig($minify->minify()));
                         fclose($f);
@@ -89,7 +89,7 @@ class Link extends Route
                         /**
                          * Minify the content, replace variables declaration and cache the file
                          */
-                        $minify = new JS(file_get_contents($hrefFinal));
+                        $minify = new \MatthiasMullie\Minify\JS(file_get_contents($hrefFinal));
                         $minify->minify(PATH_HOME . "assetsPublic/{$name}");
                     }
 

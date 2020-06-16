@@ -192,7 +192,7 @@ class Route
             /**
              * Busca pelo arquivo de HTML ou PHP da view
              */
-            if (($viewExtensionPhp = file_exists($viewFolder . $route . ".php")) || file_exists($viewFolder . $route . ".html") && !$find) {
+            if ((($viewExtensionPhp = file_exists($viewFolder . $route . ".php")) || file_exists($viewFolder . $route . ".html")) && !$find) {
                 $this->file = $route;
                 $this->route = str_replace(PATH_HOME, "", $viewFolder . $this->file . ($viewExtensionPhp ? ".php" : ".html"));
                 $this->lib = str_replace([PATH_HOME, VENDOR, "public/" . $this->directory . "/{$route}/{$setor}/", "public/" . $this->directory . "/{$route}/", "/"], "", $viewFolder);

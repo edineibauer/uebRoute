@@ -74,7 +74,7 @@ class Link extends Route
                     /**
                      * Update head value with the cached minify css
                      */
-                    $this->param['head'][$i] = str_replace("<link ", "<link id='{$i}' ", str_replace($href, HOME . "assetsPublic/{$name}", $head));
+                    $this->param['head'][$i] = str_replace("<link ", "<link id='{$i}' ", str_replace($href, HOME . "assetsPublic/{$name}?v=" . VERSION, $head));
 
                     /**
                      * if is a JS file to put on head, so Minify the content
@@ -96,7 +96,7 @@ class Link extends Route
                     /**
                      * Update head value with the cached minify css
                      */
-                    $this->param['head'][$i] = str_replace("<script ", "<script id='{$i}' ", str_replace($href, HOME . "assetsPublic/{$name}", $head));
+                    $this->param['head'][$i] = str_replace("<script ", "<script id='{$i}' ", str_replace($href, HOME . "assetsPublic/{$name}?v=" . VERSION, $head));
                 } elseif(preg_match("/^<meta /i", $head)) {
 
                     /**

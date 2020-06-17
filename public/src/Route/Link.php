@@ -134,13 +134,13 @@ class Link extends Route
                  * If JS view not exist on minify cache folder, then create
                  */
             } elseif(!file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.js")) {
-                Config::createPageJs($this->getFile(), $this->getLib(), $setor);
+                Config::createPageJs($this->getFile(), $this->getJs(), $setor);
 
                 /**
                  * If CSS view not exist on minify cache folder, then create
                  */
             } elseif(!file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.css")) {
-                Config::createPageCss($this->getFile(), $this->getLib(), $setor);
+                Config::createPageCss($this->getFile(), $this->getCss(), $setor);
             }
         }
     }

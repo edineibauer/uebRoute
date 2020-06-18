@@ -46,6 +46,10 @@ class Route
         $route = array_shift($this->variaveis);
 
         $this->findRoute($route, $setor);
+
+        if($this->file === "404")
+            $this->findRoute("404", $setor);
+
         $this->prepareAssets();
     }
 

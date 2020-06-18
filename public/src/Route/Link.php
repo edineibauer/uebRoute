@@ -36,7 +36,7 @@ class Link extends Route
      */
     private function formatParam(string $setor)
     {
-        $this->param['title'] = $this->formatTitle($this->param['title'] ?? parent::getFile());
+        $this->param['title'] = $this->formatTitle(!empty($this->param['title']) ? $this->param['title'] : $this->getFile());
         $this->param['css'] = file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.css") ? file_get_contents(PATH_HOME . "assetsPublic/view/" . $setor . "/" . parent::getFile() . ".min.css") : "";
         $this->param['js'] = file_exists(PATH_HOME . "assetsPublic/view/{$setor}/"  . parent::getFile() . ".min.js") ? HOME . "assetsPublic/view/{$setor}/"  . parent::getFile() . ".min.js?v=" . VERSION : "";
         $this->param['variaveis'] = parent::getVariaveis();

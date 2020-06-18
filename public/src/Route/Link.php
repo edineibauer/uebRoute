@@ -60,7 +60,7 @@ class Link extends Route
                             /**
                              * Minify the content, replace variables declaration and cache the file
                              */
-                            $minify = new \MatthiasMullie\Minify\CSS(preg_match("/\/assets\/core\//i", $dir) ? file_get_contents($dir) : self::setPrefixToCssDefinition(file_get_contents($dir), ".r-" . $this->getFile()));
+                            $minify = new \MatthiasMullie\Minify\CSS(preg_match("/\/assets\/core\//i", $dir) ? file_get_contents($dir) : Config::setPrefixToCssDefinition(file_get_contents($dir), ".r-" . $this->getFile()));
                             $f = fopen(PATH_HOME . "assetsPublic/{$file}", "w");
                             fwrite($f, Config::replaceVariablesConfig($minify->minify()));
                             fclose($f);

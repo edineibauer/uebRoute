@@ -47,7 +47,7 @@ class Route
 
         $this->findRoute($route, $setor);
 
-        if($this->file === "404")
+        if ($route !== "404" && $this->file === "404")
             $this->findRoute("404", $setor);
 
         $this->prepareAssets();
@@ -143,16 +143,16 @@ class Route
          * for each css declared on param
          * search on assets folder on each lib
          */
-        if(!empty($this->param['js'])) {
+        if (!empty($this->param['js'])) {
             foreach (Config::getRoutesFilesTo("assets", "js") as $f => $item) {
                 if (is_array($this->param['js'])) {
                     foreach ($this->param['js'] as $js) {
-                        if(is_string($js) && $f === pathinfo($js, PATHINFO_BASENAME) . ".js") {
+                        if (is_string($js) && $f === pathinfo($js, PATHINFO_BASENAME) . ".js") {
                             $this->js[$f] = $item;
                             break;
                         }
                     }
-                } elseif(is_string($this->param['js']) && $f === str_replace(".js", "", $this->param['js']) . ".js") {
+                } elseif (is_string($this->param['js']) && $f === str_replace(".js", "", $this->param['js']) . ".js") {
                     $this->js[$f] = $item;
                 }
             }
@@ -162,16 +162,16 @@ class Route
          * for each javascript declared on param
          * search on assets folder on each lib
          */
-        if(!empty($this->param['css'])) {
+        if (!empty($this->param['css'])) {
             foreach (Config::getRoutesFilesTo("assets", "css") as $f => $item) {
                 if (is_array($this->param['css'])) {
                     foreach ($this->param['css'] as $css) {
-                        if(is_string($css) && $f === pathinfo($css, PATHINFO_BASENAME) . ".css") {
+                        if (is_string($css) && $f === pathinfo($css, PATHINFO_BASENAME) . ".css") {
                             $this->css[$f] = $item;
                             break;
                         }
                     }
-                } elseif(is_string($this->param['css']) && $f === str_replace(".css", "", $this->param['css']) . ".css") {
+                } elseif (is_string($this->param['css']) && $f === str_replace(".css", "", $this->param['css']) . ".css") {
                     $this->css[$f] = $item;
                 }
             }
@@ -194,27 +194,27 @@ class Route
         foreach (Config::getRoutesTo($this->directory . "/" . $route) as $viewFolder) {
 
             /**
-             * Busca pelo arquivo de HTML ou PHP da view
-             */
-            if ((($viewExtensionPhp = file_exists($viewFolder . $route . ".php")) || file_exists($viewFolder . $route . ".html")) && !$find) {
-                $this->file = $route;
-                $this->route = str_replace(PATH_HOME, "", $viewFolder . $this->file . ($viewExtensionPhp ? ".php" : ".html"));
-                $this->lib = str_replace([PATH_HOME, VENDOR, "public/" . $this->directory . "/{$route}/{$setor}/", "public/" . $this->directory . "/{$route}/", "/"], "", $viewFolder);
-                $this->lib = $this->lib === "" ? DOMINIO : $this->lib;
-                $find = !0;
-            }
-
-            /**
              * Busca pelos assets (JS, CSS e PARAM)
              */
             foreach (Helper::listFolder($viewFolder) as $item) {
                 $extensao = pathinfo($item, PATHINFO_EXTENSION);
-                if ($extensao === "js" && !isset($this->js[$item]))
+                if ($extensao === "php" || $extensao === "html") {
+                    if(!$find) {
+                        $find = !0;
+                        $this->file = $route;
+                        $this->route = str_replace(PATH_HOME, "", $viewFolder . $item);
+                        $this->lib = str_replace([PATH_HOME, VENDOR, "public/" . $this->directory . "/{$route}/{$setor}/", "public/" . $this->directory . "/{$route}/", "/"], "", $viewFolder);
+                        $this->lib = $this->lib === "" ? DOMINIO : $this->lib;
+
+                    }
+
+                } elseif ($extensao === "js" && !isset($this->js[$item])) {
                     $this->js[$item] = $viewFolder . $item;
-                elseif ($extensao === "css" && !isset($this->css[$item]))
+                } elseif ($extensao === "css" && !isset($this->css[$item])) {
                     $this->css[$item] = $viewFolder . $item;
-                elseif ($extensao === "json" && !isset($param[$item]))
+                } elseif ($extensao === "json" && !isset($param[$item])) {
                     $param[$item] = $viewFolder . $item;
+                }
             }
         }
 

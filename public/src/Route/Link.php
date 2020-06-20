@@ -70,7 +70,7 @@ class Link extends Route
                      * Update head value with the cached minify css
                      */
                     $id = \Helpers\Check::name($file);
-                    $this->param['head'][$id] = "<link id='" . $id . "' href='" . HOME . "assetsPublic/{$file}?v=" . VERSION . "' rel='stylesheet' type='text/css' media='all' />";
+                    $this->param['head'][$id] = "<link id='" . $id . "' href='" . HOME . "assetsPublic/{$file}?v=" . VERSION . "' class='coreLinkHeader' rel='stylesheet' type='text/css' media='all' />";
                     break;
                 }
             }
@@ -100,7 +100,7 @@ class Link extends Route
                  * Update head value with the cached minify css
                  */
                 $id = \Helpers\Check::name($file);
-                $this->param['head'][$id] = "<script id='" . $id . "' src='" . HOME . "assetsPublic/{$file}?v=" . VERSION . "'></script>";
+                $this->param['head'][$id] = "<script id='" . $id . "' src='" . HOME . "assetsPublic/{$file}?v=" . VERSION . "' class='coreScriptHeader'></script>";
                 break;
             }
         }

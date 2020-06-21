@@ -200,8 +200,14 @@ class Link extends Route
         }
 
         $tpl = [];
-        foreach ($this->param['templates'] as $template)
-            $tpl[$template] = Config::getTemplateContent($template);
+        if(is_array($this->param['templates'])) {
+            foreach ($this->param['templates'] as $template) {
+                if(is_string($template))
+                    $tpl[$template] = Config::getTemplateContent($template);
+            }
+        } elseif(is_string($this->param['templates'])) {
+            $tpl[$this->param['templates']] = Config::getTemplateContent($this->param['templates']);
+        }
 
         $this->param['templates'] = $tpl;
     }

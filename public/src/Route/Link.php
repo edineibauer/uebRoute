@@ -10,7 +10,6 @@
 namespace Route;
 
 use Config\Config;
-use Config\UpdateSystem;
 
 class Link extends Route
 {
@@ -192,13 +191,19 @@ class Link extends Route
         if (!empty($this->getJs())) {
             foreach ($this->getJs() as $viewJ) {
                 $jsonJs = str_replace('.js', '.json', $viewJ);
-                if (file_exists($jsonJs)) {
+                if (preg_match("/\/public\/assets\//i", $jsonJs) && file_exists($jsonJs)) {
                     $tpl = json_decode(file_get_contents($jsonJs), !0);
                     if(!empty($tpl['templates']))
                         $this->param['templates'] = array_merge($this->param['templates'], $tpl['templates']);
                 }
             }
         }
+
+        $tpl = [];
+        foreach ($this->param['templates'] as $template)
+            $tpl[$template] = Config::getTemplateContent($template);
+
+        $this->param['templates'] = $tpl;
     }
 
     /**

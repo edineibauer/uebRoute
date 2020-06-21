@@ -27,6 +27,7 @@ class Link extends Route
 
         $setor = Config::getSetor();
         $this->viewAssetsUpdate($setor);
+        $this->addJsTemplates();
         $this->formatParam($setor);
     }
 
@@ -179,6 +180,23 @@ class Link extends Route
                  */
             } elseif(!file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.css")) {
                 Config::createPageCss($this->getFile(), $this->getCss(), $setor);
+            }
+        }
+    }
+
+    /**
+     * Add templates declared on scripts files included to this view
+     */
+    private function addJsTemplates()
+    {
+        if (!empty($this->getJs())) {
+            foreach ($this->getJs() as $viewJ) {
+                $jsonJs = str_replace('.js', '.json', $viewJ);
+                if (file_exists($jsonJs)) {
+                    $tpl = json_decode(file_get_contents($jsonJs), !0);
+                    if(!empty($tpl['templates']))
+                        $this->param['templates'] = array_merge($this->param['templates'], $tpl['templates']);
+                }
             }
         }
     }

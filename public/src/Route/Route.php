@@ -123,6 +123,7 @@ class Route
             "head" => [],
             "title" => "",
             "descricao" => "",
+            "templates" => [],
             "data" => 0,
             "front" => [],
             "header" => !0,

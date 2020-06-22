@@ -157,13 +157,16 @@ class Route
             foreach (Config::getRoutesFilesTo("assets", "js") as $f => $item) {
                 if (is_array($this->param['js'])) {
                     foreach ($this->param['js'] as $js) {
-                        if (is_string($js) && $f === pathinfo($js, PATHINFO_BASENAME) . ".js") {
+                        $js .= (!preg_match("/\.js$/i", $js) ? ".js" : "");
+                        if (is_string($js) && $f === $js) {
                             $this->js[$f] = $item;
                             break;
                         }
                     }
-                } elseif (is_string($this->param['js']) && $f === str_replace(".js", "", $this->param['js']) . ".js") {
-                    $this->js[$f] = $item;
+                } elseif (is_string($this->param['js'])) {
+                    $this->param['js'] .= (!preg_match("/\.js$/i", $this->param['js']) ? ".js" : "");
+                    if($f === $this->param['js'])
+                        $this->js[$f] = $item;
                 }
             }
         }
@@ -176,13 +179,16 @@ class Route
             foreach (Config::getRoutesFilesTo("assets", "css") as $f => $item) {
                 if (is_array($this->param['css'])) {
                     foreach ($this->param['css'] as $css) {
-                        if (is_string($css) && $f === pathinfo($css, PATHINFO_BASENAME) . ".css") {
+                        $css .= (!preg_match("/\.css$/i", $css) ? ".css" : "");
+                        if (is_string($css) && $f === $css) {
                             $this->css[$f] = $item;
                             break;
                         }
                     }
-                } elseif (is_string($this->param['css']) && $f === str_replace(".css", "", $this->param['css']) . ".css") {
-                    $this->css[$f] = $item;
+                } elseif (is_string($this->param['css'])) {
+                    $this->param['css'] .= (!preg_match("/\.css$/i", $this->param['css']) ? ".css" : "");
+                    if($f === $this->param['css'])
+                        $this->css[$f] = $item;
                 }
             }
         }

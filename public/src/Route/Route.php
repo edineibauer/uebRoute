@@ -20,6 +20,7 @@ class Route
     protected $param;
     private $css = [];
     private $js = [];
+    private $templates = [];
     private $variaveis;
 
     /**
@@ -75,6 +76,14 @@ class Route
     public function getJs()
     {
         return $this->js;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTemplates()
+    {
+        return $this->templates;
     }
 
     /**
@@ -215,6 +224,8 @@ class Route
                     $this->css[$item] = $viewFolder . $item;
                 } elseif ($extensao === "json" && !isset($param[$item])) {
                     $param[$item] = $viewFolder . $item;
+                } elseif ($extensao === "mustache" && !isset($this->templates[$item])) {
+                    $this->templates[str_replace(".mustache", "", $item)] = $viewFolder . $item;
                 }
             }
         }
@@ -224,6 +235,5 @@ class Route
          */
         foreach ($param as $item)
             $this->param = array_merge($this->param, json_decode(file_get_contents($item), !0));
-
     }
 }

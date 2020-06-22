@@ -209,6 +209,11 @@ class Link extends Route
             $tpl[$this->param['templates']] = Config::getTemplateContent($this->param['templates']);
         }
 
+        if(!empty($this->getTemplates())) {
+            foreach ($this->getTemplates() as $template => $dir)
+                $tpl[$template] = file_get_contents($dir);
+        }
+
         $this->param['templates'] = $tpl;
     }
 

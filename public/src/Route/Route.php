@@ -239,7 +239,12 @@ class Route
         /**
          * turn array list of param into a unique object
          */
-        foreach ($param as $item)
-            $this->param = array_merge($this->param, json_decode(file_get_contents($item), !0));
+        foreach ($param as $item) {
+            if(!empty($item)) {
+                $item = json_decode(file_get_contents($item), !0);
+                if(!empty($item) && is_array($item))
+                    $this->param = array_merge($this->param, $item);
+            }
+        }
     }
 }

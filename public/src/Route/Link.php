@@ -52,7 +52,8 @@ class Link extends Route
     {
         if(!empty($link)) {
             $link .= (!preg_match("/\.css$/i", $link) ? ".css" : "");
-            $fileLink = \Helpers\Check::name(pathinfo($link, PATHINFO_BASENAME));
+            $fileLink = pathinfo($link, PATHINFO_BASENAME);
+            $id = \Helpers\Check::name($fileLink);
             foreach ($rotas as $file => $dir) {
                 if ($file === $link) {
 
@@ -70,7 +71,7 @@ class Link extends Route
                     /**
                      * Update head value with the cached minify css
                      */
-                    $this->param['head'][$fileLink] = "<link id='" . $fileLink . "' href='" . HOME . "assetsPublic/{$fileLink}?v=" . VERSION . "' class='coreLinkHeader' rel='stylesheet' type='text/css' media='all' />";
+                    $this->param['head'][$id] = "<link id='" . $id . "' href='" . HOME . "assetsPublic/{$fileLink}?v=" . VERSION . "' class='coreLinkHeader' rel='stylesheet' type='text/css' media='all' />";
                     break;
                 }
             }

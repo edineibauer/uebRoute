@@ -53,18 +53,18 @@ class Link extends Route
     {
         if(!empty($link)) {
             $link .= (!preg_match("/\.css$/i", $link) ? ".css" : "");
-            $fileLink = pathinfo($link, PATHINFO_BASENAME);
-            $id = \Helpers\Check::name($fileLink);
+            $id = \Helpers\Check::name($link);
+            $linkName = substr($id,0,-4) . ".css";
             foreach ($rotas as $file => $dir) {
                 if ($file === $link) {
 
                     //get the url and name of file
-                    if (DEV || !file_exists(PATH_HOME . "assetsPublic/{$fileLink}")) {
+                    if (DEV || !file_exists(PATH_HOME . "assetsPublic/{$linkName}")) {
                         /**
                          * Minify the content, replace variables declaration and cache the file
                          */
                         $minify = new \MatthiasMullie\Minify\CSS(preg_match("/\/assets\/core\//i", $dir) ? Config::replaceVariablesConfig(file_get_contents($dir)) : Config::setPrefixToCssDefinition(Config::replaceVariablesConfig(file_get_contents($dir)), ".r-network"));
-                        $f = fopen(PATH_HOME . "assetsPublic/{$fileLink}", "w");
+                        $f = fopen(PATH_HOME . "assetsPublic/{$linkName}", "w");
                         fwrite($f, $minify->minify());
                         fclose($f);
                     }
@@ -72,7 +72,7 @@ class Link extends Route
                     /**
                      * Update head value with the cached minify css
                      */
-                    $this->param['head'][$id] = "<link id='" . $id . "' href='" . HOME . "assetsPublic/{$fileLink}?v=" . VERSION . "' class='coreLinkHeader' rel='stylesheet' type='text/css' media='all' />";
+                    $this->param['head'][$id] = "<link id='" . $id . "' href='" . HOME . "assetsPublic/{$linkName}?v=" . VERSION . "' class='coreLinkHeader' rel='stylesheet' type='text/css' media='all' />";
                     break;
                 }
             }
@@ -87,24 +87,24 @@ class Link extends Route
     {
         if (!empty($script)) {
             $script .= (!preg_match("/\.js$/i", $script) ? ".js" : "");
-            $fileLink = pathinfo($script, PATHINFO_BASENAME);
+            $linkName = substr(\Helpers\Check::name($script),0,-3) . ".js";
 
             foreach ($rotas as $file => $dir) {
                 if ($file === $script) {
 
                     //get the url and name of file
-                    if (DEV || !file_exists(PATH_HOME . "assetsPublic/{$fileLink}")) {
+                    if (DEV || !file_exists(PATH_HOME . "assetsPublic/{$linkName}")) {
                         /**
                          * Minify the content, replace variables declaration and cache the file
                          */
                         $minify = new \MatthiasMullie\Minify\JS(file_get_contents($dir));
-                        $minify->minify(PATH_HOME . "assetsPublic/{$fileLink}");
+                        $minify->minify(PATH_HOME . "assetsPublic/{$linkName}");
                     }
 
                     /**
                      * Update head value with the cached minify css
                      */
-                    $this->param['js'][] = HOME . "assetsPublic/{$fileLink}?v=" . VERSION;
+                    $this->param['js'][] = HOME . "assetsPublic/{$linkName}?v=" . VERSION;
                     break;
                 }
             }

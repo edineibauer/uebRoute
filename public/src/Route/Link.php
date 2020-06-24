@@ -134,13 +134,15 @@ class Link extends Route
          */
         $rotasJs = Config::getRoutesFilesTo("assets", "js");
         if(!empty($this->param['js'])) {
-            if(is_array($this->param['js'])) {
-                foreach ($this->param['js'] as $i => $script) {
+            $js = $this->param['js'];
+            $this->param['js'] = [];
+            if(is_array($js)) {
+                foreach ($js as $i => $script) {
                     if(is_string($script))
                         $this->createScript($script, $rotasJs);
                 }
-            } elseif(is_string($this->param['js'])) {
-                $this->createScript($this->param['js'], $rotasJs);
+            } elseif(is_string($js)) {
+                $this->createScript($js, $rotasJs);
             }
         }
 

@@ -83,25 +83,29 @@ class Link extends Route
      */
     private function createScript(string $script, array $rotas)
     {
-        $fileLink = pathinfo($script, PATHINFO_BASENAME) . '.js';
-        foreach ($rotas as $file => $dir) {
-            if($file === $fileLink) {
+        if (!empty($script)) {
+            $script .= (!preg_match("/\.js$/i", $script) ? ".js" : "");
+            $fileLink = pathinfo($script, PATHINFO_BASENAME);
+            $id = \Helpers\Check::name($fileLink);
 
-                //get the url and name of file
-                if(DEV || !file_exists(PATH_HOME . "assetsPublic/{$file}")) {
+            foreach ($rotas as $file => $dir) {
+                if ($file === $script) {
+
+                    //get the url and name of file
+                    if (DEV || !file_exists(PATH_HOME . "assetsPublic/{$fileLink}")) {
+                        /**
+                         * Minify the content, replace variables declaration and cache the file
+                         */
+                        $minify = new \MatthiasMullie\Minify\JS(file_get_contents($dir));
+                        $minify->minify(PATH_HOME . "assetsPublic/{$fileLink}");
+                    }
+
                     /**
-                     * Minify the content, replace variables declaration and cache the file
+                     * Update head value with the cached minify css
                      */
-                    $minify = new \MatthiasMullie\Minify\JS(file_get_contents($dir));
-                    $minify->minify(PATH_HOME . "assetsPublic/{$file}");
+                    $this->param['head'][$id] = "<script id='" . $id . "' src='" . HOME . "assetsPublic/{$fileLink}?v=" . VERSION . "' class='coreScriptHeader'></script>";
+                    break;
                 }
-
-                /**
-                 * Update head value with the cached minify css
-                 */
-                $id = \Helpers\Check::name($file);
-                $this->param['head'][$id] = "<script id='" . $id . "' src='" . HOME . "assetsPublic/{$file}?v=" . VERSION . "' class='coreScriptHeader'></script>";
-                break;
             }
         }
     }

@@ -27,6 +27,7 @@ class Link extends Route
         $setor = Config::getSetor();
         $this->viewAssetsUpdate($setor);
         $this->addJsTemplates();
+        $this->createHeadMinify();
         $this->formatParam($setor);
     }
 
@@ -40,8 +41,6 @@ class Link extends Route
         $this->param['css'] = file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.css") ? file_get_contents(PATH_HOME . "assetsPublic/view/" . $setor . "/" . parent::getFile() . ".min.css") : "";
         $this->param['js'] = file_exists(PATH_HOME . "assetsPublic/view/{$setor}/"  . parent::getFile() . ".min.js") ? HOME . "assetsPublic/view/{$setor}/"  . parent::getFile() . ".min.js?v=" . VERSION : "";
         $this->param['variaveis'] = parent::getVariaveis();
-
-        $this->createHeadMinify();
     }
 
     /**

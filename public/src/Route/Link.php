@@ -39,8 +39,10 @@ class Link extends Route
     {
         $this->param['title'] = $this->formatTitle(!empty($this->param['title']) ? $this->param['title'] : $this->getFile());
         $this->param['css'] = file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.css") ? file_get_contents(PATH_HOME . "assetsPublic/view/" . $setor . "/" . parent::getFile() . ".min.css") : "";
-        $this->param['js'] = file_exists(PATH_HOME . "assetsPublic/view/{$setor}/"  . parent::getFile() . ".min.js") ? HOME . "assetsPublic/view/{$setor}/"  . parent::getFile() . ".min.js?v=" . VERSION : "";
         $this->param['variaveis'] = parent::getVariaveis();
+
+        if(file_exists(PATH_HOME . "assetsPublic/view/{$setor}/"  . parent::getFile() . ".min.js"))
+            $this->param['js'][] =  HOME . "assetsPublic/view/{$setor}/"  . parent::getFile() . ".min.js?v=" . VERSION;
     }
 
     /**
@@ -86,7 +88,6 @@ class Link extends Route
         if (!empty($script)) {
             $script .= (!preg_match("/\.js$/i", $script) ? ".js" : "");
             $fileLink = pathinfo($script, PATHINFO_BASENAME);
-            $id = \Helpers\Check::name($fileLink);
 
             foreach ($rotas as $file => $dir) {
                 if ($file === $script) {
@@ -103,7 +104,7 @@ class Link extends Route
                     /**
                      * Update head value with the cached minify css
                      */
-                    $this->param['head'][$id] = "<script id='" . $id . "' src='" . HOME . "assetsPublic/{$fileLink}?v=" . VERSION . "' class='coreScriptHeader'></script>";
+                    $this->param['script'][] = HOME . "assetsPublic/{$fileLink}?v=" . VERSION;
                     break;
                 }
             }

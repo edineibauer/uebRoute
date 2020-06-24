@@ -113,15 +113,15 @@ class Link extends Route
          * tag head link replace variables declaration
          */
         $rotasCss = Config::getRoutesFilesTo("assets", "css");
-        if(!empty($this->param['link'])) {
-            if(is_array($this->param['link'])) {
-                foreach ($this->param['link'] as $link) {
+        if(!empty($this->param['css'])) {
+            if(is_array($this->param['css'])) {
+                foreach ($this->param['css'] as $link) {
                     if(is_string($link))
                         $this->createLink($link, $rotasCss);
                 }
 
-            } elseif(is_string($this->param['link'])) {
-                $this->createLink($this->param['link'], $rotasCss);
+            } elseif(is_string($this->param['css'])) {
+                $this->createLink($this->param['css'], $rotasCss);
             }
         }
 
@@ -129,14 +129,14 @@ class Link extends Route
          * if is a JS file to put on head, so Minify the content
          */
         $rotasJs = Config::getRoutesFilesTo("assets", "js");
-        if(!empty($this->param['script'])) {
-            if(is_array($this->param['script'])) {
-                foreach ($this->param['script'] as $i => $script) {
+        if(!empty($this->param['js'])) {
+            if(is_array($this->param['js'])) {
+                foreach ($this->param['js'] as $i => $script) {
                     if(is_string($script))
                         $this->createScript($script, $rotasJs);
                 }
-            } elseif(is_string($this->param['script'])) {
-                $this->createScript($this->param['script'], $rotasJs);
+            } elseif(is_string($this->param['js'])) {
+                $this->createScript($this->param['js'], $rotasJs);
             }
         }
 

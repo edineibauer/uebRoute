@@ -50,8 +50,6 @@ class Route
 
         if ($route !== "404" && $this->file === "404")
             $this->findRoute("404", $setor);
-
-        $this->prepareAssets();
     }
 
     /**
@@ -142,56 +140,6 @@ class Route
             "redirect" => "403",
             "vendor" => VENDOR
         ];
-    }
-
-    /**
-     * Prepare Assets JS and CSS to include in view
-     */
-    private function prepareAssets()
-    {
-        /**
-         * for each css declared on param
-         * search on assets folder on each lib
-         */
-        if (!empty($this->param['js'])) {
-            foreach (Config::getRoutesFilesTo("assets", "js") as $f => $item) {
-                if (is_array($this->param['js'])) {
-                    foreach ($this->param['js'] as $js) {
-                        $js .= (!preg_match("/\.js$/i", $js) ? ".js" : "");
-                        if (is_string($js) && $f === $js) {
-                            $this->js[$f] = $item;
-                            break;
-                        }
-                    }
-                } elseif (is_string($this->param['js'])) {
-                    $this->param['js'] .= (!preg_match("/\.js$/i", $this->param['js']) ? ".js" : "");
-                    if($f === $this->param['js'])
-                        $this->js[$f] = $item;
-                }
-            }
-        }
-
-        /**
-         * for each javascript declared on param
-         * search on assets folder on each lib
-         */
-        if (!empty($this->param['css'])) {
-            foreach (Config::getRoutesFilesTo("assets", "css") as $f => $item) {
-                if (is_array($this->param['css'])) {
-                    foreach ($this->param['css'] as $css) {
-                        $css .= (!preg_match("/\.css$/i", $css) ? ".css" : "");
-                        if (is_string($css) && $f === $css) {
-                            $this->css[$f] = $item;
-                            break;
-                        }
-                    }
-                } elseif (is_string($this->param['css'])) {
-                    $this->param['css'] .= (!preg_match("/\.css$/i", $this->param['css']) ? ".css" : "");
-                    if($f === $this->param['css'])
-                        $this->css[$f] = $item;
-                }
-            }
-        }
     }
 
     /**

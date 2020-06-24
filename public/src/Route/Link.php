@@ -104,7 +104,7 @@ class Link extends Route
                     /**
                      * Update head value with the cached minify css
                      */
-                    $this->param['script'][] = HOME . "assetsPublic/{$fileLink}?v=" . VERSION;
+                    $this->param['js'][] = HOME . "assetsPublic/{$fileLink}?v=" . VERSION;
                     break;
                 }
             }

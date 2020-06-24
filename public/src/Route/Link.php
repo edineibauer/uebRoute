@@ -175,17 +175,19 @@ class Link extends Route
                 Config::createPageJs($this->getFile(), $this->getJs(), $setor);
                 Config::createPageCss($this->getFile(), $this->getCss(), $setor);
 
+            } else {
+
                 /**
                  * If JS view not exist on minify cache folder, then create
                  */
-            } elseif(!file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.js")) {
-                Config::createPageJs($this->getFile(), $this->getJs(), $setor);
+                if(!file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.js"))
+                    Config::createPageJs($this->getFile(), $this->getJs(), $setor);
 
-                /**
-                 * If CSS view not exist on minify cache folder, then create
-                 */
-            } elseif(!file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.css")) {
-                Config::createPageCss($this->getFile(), $this->getCss(), $setor);
+                    /**
+                     * If CSS view not exist on minify cache folder, then create
+                     */
+                if(!file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.css"))
+                    Config::createPageCss($this->getFile(), $this->getCss(), $setor);
             }
         }
     }

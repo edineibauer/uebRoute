@@ -197,13 +197,19 @@ class Link extends Route
      */
     private function addJsTemplates()
     {
-        if (!empty($this->getJs())) {
-            foreach ($this->getJs() as $viewJ) {
-                $jsonJs = str_replace('.js', '.json', $viewJ);
-                if (preg_match("/\/public\/assets\//i", $jsonJs) && file_exists($jsonJs)) {
-                    $tpl = json_decode(file_get_contents($jsonJs), !0);
-                    if(!empty($tpl['templates']))
-                        $this->param['templates'] = array_merge($this->param['templates'], $tpl['templates']);
+        if (!empty($this->param['js'])) {
+            $listJson = [];
+            foreach ($this->param['js'] as $viewJ)
+                $listJson[] = str_replace('.js', '', $viewJ) . ".json";
+
+            foreach ($listJson as $item) {
+
+                foreach (Config::getRoutesFilesTo("assets", "json") as $file => $dir) {
+                    if($file === $item) {
+                        $tpl = json_decode(file_get_contents($dir), !0);
+                        if(!empty($tpl['templates']))
+                            $this->param['templates'] = array_merge($this->param['templates'], $tpl['templates']);
+                    }
                 }
             }
         }

@@ -25,8 +25,8 @@ class Link extends Route
         parent::__construct($url, $this->directory);
 
         $setor = Config::getSetor();
-        $this->viewAssetsUpdate($setor);
         $this->addJsTemplates();
+        $this->viewAssetsUpdate($setor);
         $this->createHeadMinify();
         $this->formatParam($setor);
     }
@@ -202,13 +202,27 @@ class Link extends Route
             foreach ($this->param['js'] as $viewJ)
                 $listJson[] = str_replace('.js', '', $viewJ) . ".json";
 
+            if(is_string($this->param['js']))
+                $this->param['js'] = [$this->param['js']];
+            elseif(empty($this->param['js']))
+                $this->param['js'] = [];
+
+            if(is_string($this->param['css']))
+                $this->param['css'] = [$this->param['css']];
+            elseif(empty($this->param['css']))
+                $this->param['css'] = [];
+
             foreach ($listJson as $item) {
 
                 foreach (Config::getRoutesFilesTo("assets", "json") as $file => $dir) {
                     if($file === $item) {
                         $tpl = json_decode(file_get_contents($dir), !0);
                         if(!empty($tpl['templates']))
-                            $this->param['templates'] = array_merge($this->param['templates'], $tpl['templates']);
+                            $this->param['templates'] = array_merge($this->param['templates'], (is_string($tpl['templates']) ? [$tpl['templates']] : $tpl['templates']));
+                        elseif(!empty($tpl['js']))
+                            $this->param['js'] = array_merge($this->param['js'], (is_string($tpl['js']) ? [$tpl['js']]: $tpl['js']));
+                        elseif(!empty($tpl['css']))
+                            $this->param['css'] = array_merge($this->param['css'], (is_string($tpl['css']) ? [$tpl['css']] : $tpl['css']));
                     }
                 }
             }

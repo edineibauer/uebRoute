@@ -188,10 +188,93 @@ class Route
          * turn array list of param into a unique object
          */
         foreach ($param as $item) {
-            if(!empty($item)) {
+            if (!empty($item)) {
                 $item = json_decode(file_get_contents($item), !0);
-                if(!empty($item) && is_array($item))
-                    $this->param = array_merge($this->param, $item);
+                if (!empty($item['js'])) {
+                    if (is_array($item['js'])) {
+                        foreach ($item['js'] as $j) {
+                            if (!in_array($j, $this->param['js']))
+                                $this->param['js'][] = $j;
+                        }
+                    } elseif (is_string($item['js'])) {
+                        $this->param['js'][] = $item['js'];
+                    }
+                }
+                if (!empty($item['css'])) {
+                    if (is_array($item['css'])) {
+                        foreach ($item['css'] as $c) {
+                            if (!in_array($c, $this->param['css']))
+                                $this->param['css'][] = $c;
+                        }
+                    } elseif (is_string($item['css'])) {
+                        $this->param['css'][] = $item['css'];
+                    }
+                }
+                if (!empty($item['templates'])) {
+                    if (is_array($item['templates'])) {
+                        foreach ($item['templates'] as $j) {
+                            if (!in_array($j, $this->param['templates']))
+                                $this->param['templates'][] = $j;
+                        }
+                    } elseif (is_string($item['templates'])) {
+                        $this->param['templates'][] = $item['templates'];
+                    }
+                }
+                if (!empty($item['head'])) {
+                    if (is_array($item['head'])) {
+                        foreach ($item['head'] as $h) {
+                            if (!in_array($h, $this->param['head']))
+                                $this->param['head'][] = $h;
+                        }
+                    } elseif (is_string($item['head'])) {
+                        $this->param['head'][] = $item['head'];
+                    }
+                }
+                if (!empty($item['meta'])) {
+                    if (is_array($item['meta'])) {
+                        foreach ($item['meta'] as $j) {
+                            if (!in_array($j, $this->param['meta']))
+                                $this->param['meta'][] = $j;
+                        }
+                    } elseif (is_string($item['meta'])) {
+                        $this->param['meta'][] = $item['meta'];
+                    }
+                }
+                if (!empty($item['setor'])) {
+                    if (is_array($item['setor'])) {
+                        foreach ($item['setor'] as $j) {
+                            if (!in_array($j, $this->param['setor']))
+                                $this->param['setor'][] = $j;
+                        }
+                    } elseif (is_string($item['setor'])) {
+                        $this->param['setor'][] = $item['setor'];
+                    }
+                }
+                if (!empty($item['!setor'])) {
+                    if (is_array($item['!setor'])) {
+                        foreach ($item['!setor'] as $j) {
+                            if (!in_array($j, $this->param['!setor']))
+                                $this->param['!setor'][] = $j;
+                        }
+                    } elseif (is_string($item['!setor'])) {
+                        $this->param['!setor'][] = $item['!setor'];
+                    }
+                }
+
+                if(!empty($item['title']))
+                    $this->param['title'] = $item['title'];
+
+                if(!empty($item['descricao']))
+                    $this->param['descricao'] = $item['descricao'];
+
+                if(!empty($item['header']))
+                    $this->param['header'] = $item['header'];
+
+                if(!empty($item['navbar']))
+                    $this->param['navbar'] = $item['navbar'];
+
+                if(!empty($item['redirect']))
+                    $this->param['redirect'] = $item['redirect'];
             }
         }
     }

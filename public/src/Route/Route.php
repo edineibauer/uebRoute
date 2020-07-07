@@ -226,6 +226,9 @@ class Route
                         $this->param[$param][] = $j;
                 }
             } elseif (is_string($value)) {
+                if(is_string($this->param[$param]))
+                    $this->param[$param] = [$this->param[$param]];
+
                 $this->param[$param][] = $value;
             }
         }

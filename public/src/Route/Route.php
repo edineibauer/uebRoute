@@ -150,6 +150,7 @@ class Route
 
         $setor = $setor ?? Config::getSetor();
         $find = !1;
+        $findSystem = !0;
         $param = [];
 
         /**
@@ -163,13 +164,13 @@ class Route
             foreach (Helper::listFolder($viewFolder) as $item) {
                 $extensao = pathinfo($item, PATHINFO_EXTENSION);
                 if ($extensao === "php" || $extensao === "html") {
-                    if(!$find) {
-                        $find = !0;
+                    if(!$find || $findSystem) {
                         $this->file = $route;
                         $this->route = str_replace(PATH_HOME, "", $viewFolder . $item);
                         $this->lib = str_replace([PATH_HOME, VENDOR, "public/" . $this->directory . "/{$route}/{$setor}/", "public/" . $this->directory . "/{$route}/", "/"], "", $viewFolder);
                         $this->lib = $this->lib === "" ? DOMINIO : $this->lib;
-
+                        $find = !0;
+                        $findSystem = in_array($this->lib, ["config", "dashboard", "route", "cep", "dev-ui", "entity-ui", "login", "report", "email"]);
                     }
 
                 } elseif ($extensao === "js" && !isset($this->js[$item])) {

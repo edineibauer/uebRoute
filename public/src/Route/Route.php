@@ -221,15 +221,15 @@ class Route
     private function setParamMerge(string $param, $value)
     {
         if (!empty($value)) {
+            if(is_string($this->param[$param]))
+                $this->param[$param] = [$this->param[$param]];
+
             if (is_array($value)) {
                 foreach ($value as $j) {
                     if (!in_array($j, $this->param[$param]))
                         $this->param[$param][] = $j;
                 }
             } elseif (is_string($value)) {
-                if(is_string($this->param[$param]))
-                    $this->param[$param] = [$this->param[$param]];
-
                 $this->param[$param][] = $value;
             }
         }

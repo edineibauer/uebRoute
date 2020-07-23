@@ -185,6 +185,9 @@ class Route
             }
         }
 
+        ksort($this->js);
+        ksort($this->css);
+
         /**
          * turn array list of param into a unique object
          */

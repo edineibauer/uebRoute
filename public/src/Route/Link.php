@@ -217,11 +217,14 @@ class Link extends Route
                 foreach (Config::getRoutesFilesTo("assets", "json") as $file => $dir) {
                     if($file === $item) {
                         $tpl = json_decode(file_get_contents($dir), !0);
+
                         if(!empty($tpl['templates']))
                             $this->param['templates'] = array_merge($this->param['templates'], (is_string($tpl['templates']) ? [$tpl['templates']] : $tpl['templates']));
-                        elseif(!empty($tpl['js']))
+
+                        if(!empty($tpl['js']))
                             $this->param['js'] = array_merge($this->param['js'], (is_string($tpl['js']) ? [$tpl['js']]: $tpl['js']));
-                        elseif(!empty($tpl['css']))
+
+                        if(!empty($tpl['css']))
                             $this->param['css'] = array_merge($this->param['css'], (is_string($tpl['css']) ? [$tpl['css']] : $tpl['css']));
                     }
                 }

@@ -177,14 +177,15 @@ class Route
                         $findSystem = in_array($this->lib, ["config", "dashboard", "route", "cep", "dev-ui", "entity-ui", "login", "report", "email"]);
                     }
 
+                    if ($extensao === "mustache" && !isset($this->templates[$item]))
+                        $this->templates[str_replace(".mustache", "", $item)] = $viewFolder . $item;
+
                 } elseif ($extensao === "js" && !isset($this->js[$item])) {
                     $this->js[$item] = $viewFolder . $item;
                 } elseif ($extensao === "css" && !isset($this->css[$item])) {
                     $this->css[$item] = $viewFolder . $item;
                 } elseif ($extensao === "json" && !isset($param[$item])) {
                     $param[$item] = $viewFolder . $item;
-                } elseif ($extensao === "mustache" && !isset($this->templates[$item])) {
-                    $this->templates[str_replace(".mustache", "", $item)] = $viewFolder . $item;
                 }
             }
         }

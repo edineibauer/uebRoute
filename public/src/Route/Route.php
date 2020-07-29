@@ -150,7 +150,6 @@ class Route
 
         $setor = $setor ?? Config::getSetor();
         $find = !1;
-        $findSystem = !0;
         $param = [];
 
         /**
@@ -167,14 +166,13 @@ class Route
                 $extensao = pathinfo($item, PATHINFO_EXTENSION);
                 if ($extensao === "php" || $extensao === "html" || $extensao === "mustache") {
                     $nota = $extensao === "php" ? 2 : ($extensao === "html" ? 1 : 0);
-                    if((!$find || $findSystem) && $findNota < $nota) {
+                    if(!$find || $findNota < $nota) {
                         $this->file = $route;
                         $this->route = str_replace(PATH_HOME, "", $viewFolder . $item);
                         $this->lib = str_replace([PATH_HOME, VENDOR, "public/" . $this->directory . "/{$route}/{$setor}/", "public/" . $this->directory . "/{$route}/", "/"], "", $viewFolder);
                         $this->lib = $this->lib === "" ? DOMINIO : $this->lib;
-                        $find = !0;
+                        $find = !in_array($this->lib, ["config", "dashboard", "route", "cep", "dev-ui", "entity-ui", "login", "report", "email"]);
                         $findNota = $nota;
-                        $findSystem = in_array($this->lib, ["config", "dashboard", "route", "cep", "dev-ui", "entity-ui", "login", "report", "email"]);
                     }
 
                     if ($extensao === "mustache" && !isset($this->templates[$item]))

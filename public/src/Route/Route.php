@@ -166,7 +166,7 @@ class Route
                 $extensao = pathinfo($item, PATHINFO_EXTENSION);
                 if ($extensao === "php" || $extensao === "html" || $extensao === "mustache") {
                     $nota = $extensao === "php" ? 2 : ($extensao === "html" ? 1 : 0);
-                    if(!$find || $findNota < $nota) {
+                    if($findNota < $nota) {
                         $this->file = $route;
                         $this->route = str_replace(PATH_HOME, "", $viewFolder . $item);
                         $this->lib = str_replace([PATH_HOME, VENDOR, "public/" . $this->directory . "/{$route}/{$setor}/", "public/" . $this->directory . "/{$route}/", "/"], "", $viewFolder);
@@ -186,6 +186,9 @@ class Route
                     $param[$item] = $viewFolder . $item;
                 }
             }
+
+            if($find)
+                break;
         }
 
         ksort($this->js);

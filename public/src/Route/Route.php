@@ -171,7 +171,7 @@ class Route
                         $this->route = str_replace(PATH_HOME, "", $viewFolder . $item);
                         $this->lib = str_replace([PATH_HOME, VENDOR, "public/" . $this->directory . "/{$route}/{$setor}/", "public/" . $this->directory . "/{$route}/", "/"], "", $viewFolder);
                         $this->lib = $this->lib === "" ? DOMINIO : $this->lib;
-                        $find = !in_array($this->lib, ["config", "dashboard", "route", "cep", "dev-ui", "entity-ui", "login", "report", "email"]);
+                        $find = !in_array($this->lib, ["config", "dashboard", "route", "cep", "dev-ui", "entity-ui", "login", "report", "email"]) && $nota > 0;
                         $findNota = $nota;
                     }
 

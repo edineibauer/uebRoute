@@ -229,7 +229,7 @@ class Route
 
     private function setParamMerge(string $param, $value)
     {
-        if (!empty($value)) {
+        if (!empty($value) || $value === "0") {
             if(is_string($this->param[$param]))
                 $this->param[$param] = [$this->param[$param]];
 

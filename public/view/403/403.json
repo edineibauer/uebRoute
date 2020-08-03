@@ -1,5 +1,9 @@
 {
-  "title": "403 Sem Permissão",
-  "css": ["w3"],
-  "offline": true
+  "title": "Sem Permissão",
+  "subtitle": "faça login para continuar",
+  "css": ["w3", "core/backgroundThemeWave"],
+  "header": false,
+  "navbar": false,
+  "offline": true,
+  "templates": ["wavesBottom"]
 }

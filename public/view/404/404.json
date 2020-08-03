@@ -1,4 +1,9 @@
 {
-  "title": "404 Caminho não Encontrado",
-  "css": ["w3"]
+  "title": "Opss! Nos perdemos",
+  "subtitle": "Volte para um caminho conhecido",
+  "css": ["w3", "core/backgroundThemeWave"],
+  "header": false,
+  "navbar": false,
+  "offline": true,
+  "templates": ["wavesBottom"]
 }

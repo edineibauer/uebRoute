@@ -1,5 +1,9 @@
 {
-  "title": "Sem Conexão com a Internet",
-  "css": ["w3"],
-  "offline": true
+  "title": "Conexão perdida",
+  "subtitle": "Volte quando estiver conectado",
+  "css": ["w3", "core/backgroundThemeWave"],
+  "header": false,
+  "navbar": false,
+  "offline": true,
+  "templates": ["wavesBottom"]
 }

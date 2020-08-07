@@ -221,6 +221,9 @@ class Link extends Route
                         if(!empty($tpl['templates']))
                             $this->param['templates'] = array_merge($this->param['templates'], (is_string($tpl['templates']) ? [$tpl['templates']] : $tpl['templates']));
 
+                        if(!empty($tpl['template']))
+                            $this->param['templates'] = array_merge($this->param['templates'], (is_string($tpl['template']) ? [$tpl['template']] : $tpl['template']));
+
                         if(!empty($tpl['js']))
                             $this->param['js'] = array_merge($this->param['js'], (is_string($tpl['js']) ? [$tpl['js']]: $tpl['js']));
 

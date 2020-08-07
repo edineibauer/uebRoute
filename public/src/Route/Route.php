@@ -204,6 +204,7 @@ class Route
 
                 $this->setParamMerge("js", $item['js'] ?? "");
                 $this->setParamMerge("css", $item['css'] ?? "");
+                $this->setParamMerge("templates", $item['template'] ?? "");
                 $this->setParamMerge("templates", $item['templates'] ?? "");
                 $this->setParamMerge("head", $item['head'] ?? "");
                 $this->setParamMerge("meta", $item['meta'] ?? "");

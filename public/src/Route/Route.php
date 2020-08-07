@@ -165,7 +165,8 @@ class Route
             foreach (Helper::listFolder($viewFolder) as $item) {
                 $extensao = pathinfo($item, PATHINFO_EXTENSION);
                 if ($extensao === "php" || $extensao === "html" || $extensao === "mustache") {
-                    $nota = $extensao === "php" ? 2 : ($extensao === "html" ? 1 : 0);
+                    $fileName = pathinfo($item, PATHINFO_FILENAME);
+                    $nota = ($extensao === "html" ? 2 : ($extensao === "php" ? 1 : 0)) + ($fileName === $route ? 3 : 0) + ($fileName === "index" ? 3 : 0);
                     if($findNota < $nota) {
                         $this->file = $route;
                         $this->route = str_replace(PATH_HOME, "", $viewFolder . $item);

@@ -89,23 +89,41 @@ class Link extends Route
             $script .= (!preg_match("/\.js$/i", $script) ? ".js" : "");
             $linkName = substr(\Helpers\Check::name($script),0,-3) . ".js";
 
-            foreach ($rotas as $file => $dir) {
-                if ($file === $script) {
+            if(file_exists(PATH_HOME . "node_modules/" . $script)) {
 
-                    //get the url and name of file
-                    if (DEV || !file_exists(PATH_HOME . "assetsPublic/{$linkName}")) {
-                        /**
-                         * Minify the content, replace variables declaration and cache the file
-                         */
-                        $minify = new \MatthiasMullie\Minify\JS(file_get_contents($dir));
-                        $minify->minify(PATH_HOME . "assetsPublic/{$linkName}");
-                    }
-
+                //get the url and name of file
+                if (DEV || !file_exists(PATH_HOME . "assetsPublic/{$linkName}")) {
                     /**
-                     * Update head value with the cached minify css
+                     * Minify the content, replace variables declaration and cache the file
                      */
-                    $this->param['js'][] = HOME . "assetsPublic/{$linkName}?v=" . VERSION;
-                    break;
+                    $minify = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . "node_modules/" . $script));
+                    $minify->minify(PATH_HOME . "assetsPublic/{$linkName}");
+                }
+
+                /**
+                 * Update head value with the cached minify css
+                 */
+                $this->param['js'][] = HOME . "assetsPublic/{$linkName}?v=" . VERSION;
+
+            } else {
+                foreach ($rotas as $file => $dir) {
+                    if ($file === $script) {
+
+                        //get the url and name of file
+                        if (DEV || !file_exists(PATH_HOME . "assetsPublic/{$linkName}")) {
+                            /**
+                             * Minify the content, replace variables declaration and cache the file
+                             */
+                            $minify = new \MatthiasMullie\Minify\JS(file_get_contents($dir));
+                            $minify->minify(PATH_HOME . "assetsPublic/{$linkName}");
+                        }
+
+                        /**
+                         * Update head value with the cached minify css
+                         */
+                        $this->param['js'][] = HOME . "assetsPublic/{$linkName}?v=" . VERSION;
+                        break;
+                    }
                 }
             }
         }

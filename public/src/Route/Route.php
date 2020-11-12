@@ -126,6 +126,7 @@ class Route
             "version" => VERSION,
             "css" => [],
             "js" => [],
+            "jsPre" => [],
             "meta" => "",
             "head" => [],
             "title" => "",
@@ -185,6 +186,13 @@ class Route
                     $this->css[$item] = $viewFolder . $item;
                 } elseif ($extensao === "json" && !isset($param[$item])) {
                     $param[$item] = $viewFolder . $item;
+                }
+            }
+
+            if(file_exists($viewFolder . "/before")) {
+                foreach (Helper::listFolder($viewFolder . "/before") as $item) {
+                    if(pathinfo($item, PATHINFO_EXTENSION) === "js")
+                        $this->param['jsPre'][] = str_replace(PATH_HOME, HOME, $viewFolder) . "before/{$item}";
                 }
             }
 

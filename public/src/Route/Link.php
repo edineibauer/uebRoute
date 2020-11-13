@@ -171,18 +171,24 @@ class Link extends Route
             $jsPre = [];
             if(is_array($this->param['jsPre'])) {
                 foreach ($this->param['jsPre'] as $i => $script) {
-                    if(is_string($script)) {
+                    if(is_string($script) && !empty($script)) {
                         $script .= str_replace([HOME, PATH_HOME], "", (!preg_match("/\.js$/i", $script) ? ".js" : ""));
                         $fileName = "assetsPublic/" . substr(\Helpers\Check::name($script),0,-3) . ".js";
-                        Config::createFile(PATH_HOME . $fileName, Config::getScriptContent($script));
-                        $jsPre[] = HOME . $fileName . "?v=" . VERSION;
+                        $cc = Config::getScriptContent($script);
+                        if(!empty($cc)) {
+                            Config::createFile(PATH_HOME . $fileName, $cc);
+                            $jsPre[] = HOME . $fileName . "?v=" . VERSION;
+                        }
                     }
                 }
-            } elseif(is_string($this->param['jsPre'])) {
+            } elseif(is_string($this->param['jsPre'])&& !empty($this->param['jsPre'])) {
                 $script .= str_replace([HOME, PATH_HOME], "", (!preg_match("/\.js$/i", $this->param['jsPre']) ? ".js" : ""));
                 $fileName = "assetsPublic/" . substr(\Helpers\Check::name($script),0,-3) . ".js";
-                Config::createFile(PATH_HOME . $fileName, Config::getScriptContent($this->param['jsPre']));
-                $jsPre[] = HOME . $fileName . "?v=" . VERSION;
+                $cc = Config::getScriptContent($this->param['jsPre']);
+                if(!empty($cc)) {
+                    Config::createFile(PATH_HOME . $fileName, $cc);
+                    $jsPre[] = HOME . $fileName . "?v=" . VERSION;
+                }
             }
 
             $this->param['jsPre'] = $jsPre;

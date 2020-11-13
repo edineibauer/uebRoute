@@ -173,14 +173,14 @@ class Link extends Route
             if(is_array($this->param['jsPre'])) {
                 foreach ($this->param['jsPre'] as $i => $script) {
                     if(is_string($script)) {
-                        $script .= (!preg_match("/\.js$/i", $script) ? ".js" : "");
+                        $script .= str_replace([HOME, PATH_HOME], "", (!preg_match("/\.js$/i", $script) ? ".js" : ""));
                         $fileName = "assetsPublic/" . substr(\Helpers\Check::name($script),0,-3) . ".js";
                         Config::createFile(PATH_HOME . $fileName, Config::getScriptContent($script));
                         $jsPre[] = HOME . $fileName . "?v=" . VERSION;
                     }
                 }
             } elseif(is_string($this->param['jsPre'])) {
-                $script .= (!preg_match("/\.js$/i", $this->param['jsPre']) ? ".js" : "");
+                $script .= str_replace([HOME, PATH_HOME], "", (!preg_match("/\.js$/i", $this->param['jsPre']) ? ".js" : ""));
                 $fileName = "assetsPublic/" . substr(\Helpers\Check::name($script),0,-3) . ".js";
                 Config::createFile(PATH_HOME . $fileName, Config::getScriptContent($this->param['jsPre']));
                 $jsPre[] = HOME . $fileName . "?v=" . VERSION;

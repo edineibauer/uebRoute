@@ -10,6 +10,7 @@
 namespace Route;
 
 use Config\Config;
+use MatthiasMullie\Minify\Minify;
 
 class Link extends Route
 {
@@ -165,6 +166,30 @@ class Link extends Route
         }
 
         /**
+         * if is a JS file pre load to put on head, so Minify the content
+         */
+        if(!empty($this->param['jsPre'])) {
+            $jsPre = [];
+            if(is_array($this->param['jsPre'])) {
+                foreach ($this->param['jsPre'] as $i => $script) {
+                    if(is_string($script)) {
+                        $script .= (!preg_match("/\.js$/i", $script) ? ".js" : "");
+                        $fileName = "assetsPublic/" . substr(\Helpers\Check::name($script),0,-3) . ".js";
+                        Config::createFile(PATH_HOME . $fileName, Config::getScriptContent($script));
+                        $jsPre[] = HOME . $fileName . "?v=" . VERSION;
+                    }
+                }
+            } elseif(is_string($this->param['jsPre'])) {
+                $script .= (!preg_match("/\.js$/i", $this->param['jsPre']) ? ".js" : "");
+                $fileName = "assetsPublic/" . substr(\Helpers\Check::name($script),0,-3) . ".js";
+                Config::createFile(PATH_HOME . $fileName, Config::getScriptContent($this->param['jsPre']));
+                $jsPre[] = HOME . $fileName . "?v=" . VERSION;
+            }
+
+            $this->param['jsPre'] = $jsPre;
+        }
+
+        /**
          * tag head replace variables declaration
          */
         if(!empty($this->param['meta'])) {
@@ -201,11 +226,12 @@ class Link extends Route
                 if(!file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.js"))
                     Config::createPageJs($this->getFile(), $this->getJs(), $setor);
 
-                    /**
-                     * If CSS view not exist on minify cache folder, then create
-                     */
+                /**
+                 * If CSS view not exist on minify cache folder, then create
+                 */
                 if(!file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.css"))
                     Config::createPageCss($this->getFile(), $this->getCss(), $setor);
+
             }
         }
     }

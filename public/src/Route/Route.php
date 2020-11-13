@@ -210,6 +210,7 @@ class Route
             if (!empty($item)) {
                 $item = json_decode(file_get_contents($item), !0);
 
+                $this->setParamMerge("jsPre", $item['jsPre'] ?? "");
                 $this->setParamMerge("js", $item['js'] ?? "");
                 $this->setParamMerge("css", $item['css'] ?? "");
                 $this->setParamMerge("templates", $item['template'] ?? "");

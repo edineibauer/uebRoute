@@ -10,7 +10,6 @@
 namespace Route;
 
 use Config\Config;
-use MatthiasMullie\Minify\Minify;
 
 class Link extends Route
 {

@@ -164,33 +164,35 @@ class Route
              * Busca pelos assets (JS, CSS e PARAM)
              */
             foreach (Helper::listFolder($viewFolder) as $item) {
-                $extensao = pathinfo($item, PATHINFO_EXTENSION);
-                if ($extensao === "php" || $extensao === "html" || $extensao === "mustache") {
-                    $fileName = pathinfo($item, PATHINFO_FILENAME);
-                    $nota = ($extensao === "html" ? 2 : ($extensao === "php" ? 1 : 0)) + ($fileName === $route ? 3 : 0) + ($fileName === "index" ? 3 : 0);
-                    if($findNota < $nota) {
-                        $this->file = $route;
-                        $this->route = str_replace(PATH_HOME, "", $viewFolder . $item);
-                        $this->lib = str_replace([PATH_HOME, VENDOR, "public/" . $this->directory . "/{$route}/{$setor}/", "public/" . $this->directory . "/{$route}/", "/"], "", $viewFolder);
-                        $this->lib = $this->lib === "" ? DOMINIO : $this->lib;
-                        $find = !in_array($this->lib, ["config", "dashboard", "route", "cep", "dev-ui", "entity-ui", "login", "report", "email"]) && $nota > 0;
-                        $findNota = $nota;
+                if(!is_dir($viewFolder . $item)) {
+                    $extensao = pathinfo($item, PATHINFO_EXTENSION);
+                    if ($extensao === "php" || $extensao === "html" || $extensao === "mustache") {
+                        $fileName = pathinfo($item, PATHINFO_FILENAME);
+                        $nota = ($extensao === "html" ? 2 : ($extensao === "php" ? 1 : 0)) + ($fileName === $route ? 3 : 0) + ($fileName === "index" ? 3 : 0);
+                        if($findNota < $nota) {
+                            $this->file = $route;
+                            $this->route = str_replace(PATH_HOME, "", $viewFolder . $item);
+                            $this->lib = str_replace([PATH_HOME, VENDOR, "public/" . $this->directory . "/{$route}/{$setor}/", "public/" . $this->directory . "/{$route}/", "/"], "", $viewFolder);
+                            $this->lib = $this->lib === "" ? DOMINIO : $this->lib;
+                            $find = !in_array($this->lib, ["config", "dashboard", "route", "cep", "dev-ui", "entity-ui", "login", "report", "email"]) && $nota > 0;
+                            $findNota = $nota;
+                        }
+
+                        if ($extensao === "mustache" && !isset($this->templates[$item]))
+                            $this->templates[str_replace(".mustache", "", $item)] = $viewFolder . $item;
+
+                    } elseif ($extensao === "js" && !isset($this->js[$item])) {
+                        $this->js[$item] = $viewFolder . $item;
+                    } elseif ($extensao === "css" && !isset($this->css[$item])) {
+                        $this->css[$item] = $viewFolder . $item;
+                    } elseif ($extensao === "json" && !isset($param[$item])) {
+                        $param[$item] = $viewFolder . $item;
                     }
-
-                    if ($extensao === "mustache" && !isset($this->templates[$item]))
-                        $this->templates[str_replace(".mustache", "", $item)] = $viewFolder . $item;
-
-                } elseif ($extensao === "js" && !isset($this->js[$item])) {
-                    $this->js[$item] = $viewFolder . $item;
-                } elseif ($extensao === "css" && !isset($this->css[$item])) {
-                    $this->css[$item] = $viewFolder . $item;
-                } elseif ($extensao === "json" && !isset($param[$item])) {
-                    $param[$item] = $viewFolder . $item;
                 }
             }
 
-            if(file_exists($viewFolder . "/jsPre")) {
-                foreach (Helper::listFolder($viewFolder . "/jsPre") as $item) {
+            if(file_exists($viewFolder . "jsPre")) {
+                foreach (Helper::listFolder($viewFolder . "jsPre") as $item) {
                     if(pathinfo($item, PATHINFO_EXTENSION) === "js")
                         $this->param['jsPre'][] = str_replace(PATH_HOME, HOME, $viewFolder) . "jsPre/{$item}";
                 }

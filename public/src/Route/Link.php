@@ -16,10 +16,12 @@ class Link extends Route
     private $directory;
 
     /**
+     * Link constructor.
      * @param string|null $url
      * @param string|null $dir
+     * @param bool $useOldCssSyntax
      */
-    function __construct(string $url = null, string $dir = null)
+    function __construct(string $url = null, string $dir = null, bool $useOldCssSyntax = false)
     {
         $this->directory = $dir ?? "view";
         parent::__construct($url, $this->directory);
@@ -27,18 +29,21 @@ class Link extends Route
         $setor = Config::getSetor();
         $this->addJsTemplates();
         $this->viewAssetsUpdate($setor);
-        $this->createHeadMinify();
-        $this->formatParam($setor);
+        $this->createHeadMinify($useOldCssSyntax);
+        $this->formatParam($setor, $useOldCssSyntax);
     }
 
     /**
      * Format the param response data
+     *
      * @param string $setor
+     * @param bool $useOldCssSyntax
      */
-    private function formatParam(string $setor)
+    private function formatParam(string $setor, bool $useOldCssSyntax = false)
     {
+        $nameCssFile = parent::getFile() . ($useOldCssSyntax ? ".min.old.css" : ".min.css");
         $this->param['title'] = $this->formatTitle(!empty($this->param['title']) ? $this->param['title'] : $this->getFile());
-        $this->param['css'] = file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.css") ? file_get_contents(PATH_HOME . "assetsPublic/view/" . $setor . "/" . parent::getFile() . ".min.css") : "";
+        $this->param['css'] = file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . $nameCssFile) ? file_get_contents(PATH_HOME . "assetsPublic/view/" . $setor . "/" . $nameCssFile) : "";
         $this->param['variaveis'] = parent::getVariaveis();
 
         if(file_exists(PATH_HOME . "assetsPublic/view/{$setor}/"  . parent::getFile() . ".min.js"))
@@ -48,8 +53,9 @@ class Link extends Route
     /**
      * @param string $link
      * @param array $rotas
+     * @param bool $useOldCssSyntax
      */
-    private function createLink(string $link, array $rotas)
+    private function createLink(string $link, array $rotas, bool $useOldCssSyntax = false)
     {
         if(!empty($link)) {
             $link .= (!preg_match("/\.css$/i", $link) ? ".css" : "");
@@ -57,6 +63,7 @@ class Link extends Route
             $linkName = substr($id,0,-4) . ".css";
             foreach ($rotas as $file => $dir) {
                 if ($file === $link) {
+                    $linkNameOld = str_replace(".css", ".old.css", $linkName);
 
                     //get the url and name of file
                     if (DEV || !file_exists(PATH_HOME . "assetsPublic/{$linkName}")) {
@@ -67,12 +74,20 @@ class Link extends Route
                         $f = fopen(PATH_HOME . "assetsPublic/{$linkName}", "w");
                         fwrite($f, $minify->minify());
                         fclose($f);
+
+                        /**
+                         * Old version without :not support
+                         */
+                        $minifyo = new \MatthiasMullie\Minify\CSS(Config::setPrefixToCssDefinition(Config::replaceVariablesConfig(file_get_contents($dir)), ".{$id}", true));
+                        $fo = fopen(PATH_HOME . "assetsPublic/{$linkNameOld}", "w");
+                        fwrite($fo, $minifyo->minify());
+                        fclose($fo);
                     }
 
                     /**
                      * Update head value with the cached minify css
                      */
-                    $this->param['head'][$id] = "<link id='" . $id . "' href='" . HOME . "assetsPublic/{$linkName}?v=" . VERSION . "' class='coreLinkHeader' rel='stylesheet' type='text/css' media='all' />";
+                    $this->param['head'][$id] = "<link id='" . $id . "' href='" . HOME . "assetsPublic/" . ($useOldCssSyntax ? $linkNameOld : $linkName) . "?v=" . VERSION . "' class='coreLinkHeader' rel='stylesheet' type='text/css' media='all' />";
                     break;
                 }
             }
@@ -129,7 +144,10 @@ class Link extends Route
         }
     }
 
-    private function createHeadMinify()
+    /**
+     * @param bool $useOldCssSyntax
+     */
+    private function createHeadMinify(bool $useOldCssSyntax = false)
     {
         /**
          * tag head link replace variables declaration
@@ -139,11 +157,11 @@ class Link extends Route
             if(is_array($this->param['css'])) {
                 foreach ($this->param['css'] as $link) {
                     if(is_string($link))
-                        $this->createLink($link, $rotasCss);
+                        $this->createLink($link, $rotasCss, $useOldCssSyntax);
                 }
 
             } elseif(is_string($this->param['css'])) {
-                $this->createLink($this->param['css'], $rotasCss);
+                $this->createLink($this->param['css'], $rotasCss, $useOldCssSyntax);
             }
         }
 
@@ -211,6 +229,7 @@ class Link extends Route
 
     /**
      * Check if the view Assests need to be updated
+     *
      * @param string $setor
      */
     private function viewAssetsUpdate(string $setor)

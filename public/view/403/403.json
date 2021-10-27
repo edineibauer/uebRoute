@@ -1,10 +1,9 @@
 {
   "title": "Sem Permissão",
   "subtitle": "faça login para continuar",
-  "css": ["w3", "core/backgroundThemeWave"],
+  "css": ["w3"],
   "header": false,
   "navbar": false,
   "offline": true,
-  "menu": false,
-  "templates": ["wavesBottom"]
+  "menu": false
 }

@@ -1,10 +1,9 @@
 {
   "title": "Opss! Nos perdemos",
   "subtitle": "Volte para um caminho conhecido",
-  "css": ["w3", "core/backgroundThemeWave"],
+  "css": ["w3"],
   "header": false,
   "navbar": false,
   "offline": true,
-  "menu": false,
-  "templates": ["wavesBottom"]
+  "menu": false
 }

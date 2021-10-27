@@ -1,10 +1,9 @@
 {
   "title": "Conexão perdida",
   "subtitle": "Volte quando estiver conectado",
-  "css": ["w3", "core/backgroundThemeWave"],
+  "css": ["w3"],
   "header": false,
   "navbar": false,
   "offline": true,
-  "menu": false,
-  "templates": ["wavesBottom"]
+  "menu": false
 }

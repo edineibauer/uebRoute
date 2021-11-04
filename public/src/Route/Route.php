@@ -191,10 +191,19 @@ class Route
                 }
             }
 
-            if(file_exists($viewFolder . "jsPre")) {
-                foreach (Helper::listFolder($viewFolder . "jsPre") as $item) {
-                    if(pathinfo($item, PATHINFO_EXTENSION) === "js")
-                        $this->param['jsPre'][] = str_replace(PATH_HOME, HOME, $viewFolder) . "jsPre/{$item}";
+            foreach(["jsPre", "jspre", "prejs", "preJS", "preJs", "pre"] as $preFolderName) {
+                if(file_exists($viewFolder . $preFolderName)) {
+                    foreach (Helper::listFolder($viewFolder . $preFolderName) as $item) {
+                        if(pathinfo($item, PATHINFO_EXTENSION) === "js")
+                            $this->param['jsPre'][] = str_replace(PATH_HOME, HOME, $viewFolder) . "{$preFolderName}/{$item}";
+                    }
+                }
+            }
+
+            if(file_exists($viewFolder . "tpl")) {
+                foreach (Helper::listFolder($viewFolder . "tpl") as $item) {
+                    if(pathinfo($item, PATHINFO_EXTENSION) === "mustache" && !isset($this->templates[$item]))
+                        $this->templates[str_replace(".mustache", "", $item)] = $viewFolder . "tpl/" . $item;
                 }
             }
 

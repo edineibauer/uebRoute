@@ -207,6 +207,20 @@ class Route
                 }
             }
 
+            if(file_exists($viewFolder . "js")) {
+                foreach (Helper::listFolder($viewFolder . "js") as $item) {
+                    if (pathinfo($item, PATHINFO_EXTENSION) === "js" && !isset($this->js[$item]))
+                        $this->js[$item] = $viewFolder . "js/" . $item;
+                }
+            }
+
+            if(file_exists($viewFolder . "css")) {
+                foreach (Helper::listFolder($viewFolder . "css") as $item) {
+                    if (pathinfo($item, PATHINFO_EXTENSION) === "css" && !isset($this->js[$item]))
+                        $this->css[$item] = $viewFolder . "css/" . $item;
+                }
+            }
+
             if($find)
                 break;
         }

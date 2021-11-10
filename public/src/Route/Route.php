@@ -117,29 +117,33 @@ class Route
     }
 
     /**
+     * @param string $content
+     */
+    public function setContent(string $content) {
+        $this->param["content"] = $content;
+    }
+
+    /**
      * default response Param from a view
      * @return array
      */
     private function getParamBase()
     {
         return [
-            "version" => VERSION,
-            "css" => [],
+            "css" => "",
             "js" => [],
             "jsPre" => [],
-            "meta" => "",
             "head" => [],
             "title" => "",
             "descricao" => "",
             "templates" => [],
-            "data" => 0,
-            "front" => [],
-            "header" => !0,
-            "navbar" => !0,
-            "setor" => "",
-            "!setor" => "",
+            "header" => true,
+            "navbar" => true,
+            "cache" => false,
+            "setor" => [],
+            "!setor" => [],
             "redirect" => "403",
-            "vendor" => VENDOR
+            "content" => ""
         ];
     }
 
@@ -259,6 +263,9 @@ class Route
 
                 if(!empty($item['redirect']))
                     $this->param['redirect'] = $item['redirect'];
+
+                if(!empty($item['cache']))
+                    $this->param['cache'] = $item['cache'];
             }
         }
     }

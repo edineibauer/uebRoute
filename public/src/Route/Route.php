@@ -195,7 +195,7 @@ class Route
                 }
             }
 
-            foreach(["jsPre", "jspre", "prejs", "preJS", "preJs", "pre"] as $preFolderName) {
+            foreach(["jsPre", "preJs", "pre"] as $preFolderName) {
                 if(file_exists($viewFolder . $preFolderName)) {
                     foreach (Helper::listFolder($viewFolder . $preFolderName) as $item) {
                         if(pathinfo($item, PATHINFO_EXTENSION) === "js")

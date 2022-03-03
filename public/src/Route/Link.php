@@ -23,10 +23,10 @@ class Link extends Route
      */
     function __construct(string $url = null, string $dir = null, bool $useOldCssSyntax = false)
     {
-        $this->directory = $dir ?? "view";
-        parent::__construct($url, $this->directory);
-
         $setor = Config::getSetor();
+        $this->directory = $dir ?? "view";
+        parent::__construct($url, $this->directory, $setor);
+
         $this->addJsTemplates();
         $this->viewAssetsUpdate($setor);
         $this->createHeadMinify($useOldCssSyntax);

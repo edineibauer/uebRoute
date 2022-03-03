@@ -172,7 +172,7 @@ class Route
                     $extensao = pathinfo($item, PATHINFO_EXTENSION);
                     if ($extensao === "php" || $extensao === "html" || $extensao === "mustache") {
                         $fileName = pathinfo($item, PATHINFO_FILENAME);
-                        $nota = ($extensao === "html" ? 2 : ($extensao === "php" ? 1 : 0)) + ($fileName === $route ? 3 : 0) + ($fileName === "index" ? 3 : 0);
+                        $nota = (!preg_match("/(vendor\/ueb|public\/overload)\//i", $viewFolder) ? 9 : (!preg_match("/vendor\/ueb\//i", $viewFolder) ? 6 : (preg_match("/public\/overload\//i", $viewFolder) ? 3 : 0))) + ($extensao === "html" ? 2 : ($extensao === "php" ? 1 : 0)) + ($fileName === $route ? 3 : 0) + ($fileName === "index" ? 3 : 0);
                         if($findNota < $nota) {
                             $this->file = $route;
                             $this->route = str_replace(PATH_HOME, "", $viewFolder . $item);

@@ -152,81 +152,88 @@ class Route
      */
     private function findRoute(string $route, string $setor = null)
     {
-
         $setor = $setor ?? Config::getSetor();
-        $find = !1;
         $param = [];
 
         /**
-         * Find the view requested and set as route, if find
+         * Busca view que deverá ser utilizada
          */
-        foreach (Config::getRoutesTo($this->directory . "/" . $route) as $viewFolder) {
+        $folderChoose = Config::getRouteTo($this->directory . "/" . $route);
 
-            $findNota = -1;
+        /**
+         * Busca por alias para esta rota
+         */
+        foreach (Helper::listFolder($folderChoose) as $item) {
+            if(is_dir($folderChoose . $item) || pathinfo($item, PATHINFO_EXTENSION) !== "json")
+                continue;
 
-            /**
-             * Busca pelos assets (JS, CSS e PARAM)
-             */
-            foreach (Helper::listFolder($viewFolder) as $item) {
-                if(!is_dir($viewFolder . $item)) {
-                    $extensao = pathinfo($item, PATHINFO_EXTENSION);
-                    if ($extensao === "php" || $extensao === "html" || $extensao === "mustache") {
-                        $fileName = pathinfo($item, PATHINFO_FILENAME);
-                        $nota = (!preg_match("/(vendor\/ueb|public\/overload)\//i", $viewFolder) ? 9 : (!preg_match("/vendor\/ueb\//i", $viewFolder) ? 6 : (preg_match("/public\/overload\//i", $viewFolder) ? 3 : 0))) + ($extensao === "html" ? 2 : ($extensao === "php" ? 1 : 0)) + ($fileName === $route ? 3 : 0) + ($fileName === "index" ? 3 : 0);
-                        if($findNota < $nota) {
-                            $this->file = $route;
-                            $this->route = str_replace(PATH_HOME, "", $viewFolder . $item);
-                            $this->lib = str_replace([PATH_HOME, VENDOR, "public/" . $this->directory . "/{$route}/{$setor}/", "public/" . $this->directory . "/{$route}/", "/"], "", $viewFolder);
-                            $this->lib = $this->lib === "" ? DOMINIO : $this->lib;
-                            $find = !in_array($this->lib, ["config", "dashboard", "route", "cep", "dev-ui", "entity-ui", "login", "report", "email"]) && $nota > 0;
-                            $findNota = $nota;
-                        }
-
-                        if ($extensao === "mustache" && !isset($this->templates[$item]))
-                            $this->templates[str_replace(".mustache", "", $item)] = $viewFolder . $item;
-
-                    } elseif ($extensao === "js" && !isset($this->js[$item])) {
-                        $this->js[$item] = $viewFolder . $item;
-                    } elseif ($extensao === "css" && !isset($this->css[$item])) {
-                        $this->css[$item] = $viewFolder . $item;
-                    } elseif ($extensao === "json" && !isset($param[$item])) {
-                        $param[$item] = $viewFolder . $item;
-                    }
-                }
-            }
-
-            foreach(["jsPre", "preJs", "pre"] as $preFolderName) {
-                if(file_exists($viewFolder . $preFolderName)) {
-                    foreach (Helper::listFolder($viewFolder . $preFolderName) as $item) {
-                        if(pathinfo($item, PATHINFO_EXTENSION) === "js")
-                            $this->param['jsPre'][] = str_replace(PATH_HOME, HOME, $viewFolder) . "{$preFolderName}/{$item}";
-                    }
-                }
-            }
-
-            if(file_exists($viewFolder . "tpl")) {
-                foreach (Helper::listFolder($viewFolder . "tpl") as $item) {
-                    if(pathinfo($item, PATHINFO_EXTENSION) === "mustache" && !isset($this->templates[$item]))
-                        $this->templates[str_replace(".mustache", "", $item)] = $viewFolder . "tpl/" . $item;
-                }
-            }
-
-            if(file_exists($viewFolder . "js")) {
-                foreach (Helper::listFolder($viewFolder . "js") as $item) {
-                    if (pathinfo($item, PATHINFO_EXTENSION) === "js" && !isset($this->js[$item]))
-                        $this->js[$item] = $viewFolder . "js/" . $item;
-                }
-            }
-
-            if(file_exists($viewFolder . "css")) {
-                foreach (Helper::listFolder($viewFolder . "css") as $item) {
-                    if (pathinfo($item, PATHINFO_EXTENSION) === "css" && !isset($this->js[$item]))
-                        $this->css[$item] = $viewFolder . "css/" . $item;
-                }
-            }
-
-            if($find)
+            $f = json_decode(file_get_contents($folderChoose . $item), true);
+            if(!empty($f["alias"])) {
+                $folderChoose = Config::getRouteTo($this->directory . "/" . $f["alias"], $folderChoose);
                 break;
+            }
+        }
+
+        /**
+         * Busca pelos assets (JS, CSS e PARAM)
+         */
+        $findIndexNota = -1;
+        foreach (Helper::listFolder($folderChoose) as $item) {
+            if(!is_dir($folderChoose . $item)) {
+                $extensao = pathinfo($item, PATHINFO_EXTENSION);
+                if ($extensao === "php" || $extensao === "html" || $extensao === "mustache") {
+                    $fileName = pathinfo($item, PATHINFO_FILENAME);
+                    $nota = ($extensao === "html" ? 2 : ($extensao === "php" ? 1 : 0)) + ($fileName === $route ? 3 : 0) + ($fileName === "index" ? 3 : 0);
+                    if($findIndexNota < $nota) {
+                        $this->file = $route;
+                        $this->route = str_replace(PATH_HOME, "", $folderChoose . $item);
+                        $this->lib = str_replace([PATH_HOME, VENDOR, "public/" . $this->directory . "/{$route}/{$setor}/", "public/" . $this->directory . "/{$route}/", "/"], "", $folderChoose);
+                        $this->lib = $this->lib === "" ? DOMINIO : $this->lib;
+                        $find = !in_array($this->lib, ["config", "dashboard", "route", "cep", "dev-ui", "entity-ui", "login", "report", "email"]) && $nota > 0;
+                        $findIndexNota = $nota;
+                    }
+
+                    if ($extensao === "mustache" && !isset($this->templates[$item]))
+                        $this->templates[str_replace(".mustache", "", $item)] = $folderChoose . $item;
+
+                } elseif ($extensao === "js" && !isset($this->js[$item])) {
+                    $this->js[$item] = $folderChoose . $item;
+                } elseif ($extensao === "css" && !isset($this->css[$item])) {
+                    $this->css[$item] = $folderChoose . $item;
+                } elseif ($extensao === "json" && !isset($param[$item])) {
+                    $param[$item] = $folderChoose . $item;
+                }
+            }
+        }
+
+        foreach(["jsPre", "preJs", "pre"] as $preFolderName) {
+            if(file_exists($folderChoose . $preFolderName)) {
+                foreach (Helper::listFolder($folderChoose . $preFolderName) as $item) {
+                    if(pathinfo($item, PATHINFO_EXTENSION) === "js")
+                        $this->param['jsPre'][] = str_replace(PATH_HOME, HOME, $folderChoose) . "{$preFolderName}/{$item}";
+                }
+            }
+        }
+
+        if(file_exists($folderChoose . "tpl")) {
+            foreach (Helper::listFolder($folderChoose . "tpl") as $item) {
+                if(pathinfo($item, PATHINFO_EXTENSION) === "mustache" && !isset($this->templates[$item]))
+                    $this->templates[str_replace(".mustache", "", $item)] = $folderChoose . "tpl/" . $item;
+            }
+        }
+
+        if(file_exists($folderChoose . "js")) {
+            foreach (Helper::listFolder($folderChoose . "js") as $item) {
+                if (pathinfo($item, PATHINFO_EXTENSION) === "js" && !isset($this->js[$item]))
+                    $this->js[$item] = $folderChoose . "js/" . $item;
+            }
+        }
+
+        if(file_exists($folderChoose . "css")) {
+            foreach (Helper::listFolder($folderChoose . "css") as $item) {
+                if (pathinfo($item, PATHINFO_EXTENSION) === "css" && !isset($this->js[$item]))
+                    $this->css[$item] = $folderChoose . "css/" . $item;
+            }
         }
 
         ksort($this->js);

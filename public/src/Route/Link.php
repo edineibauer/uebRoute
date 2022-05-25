@@ -319,8 +319,11 @@ class Link extends Route
 
         $this->param['templates'] = $tpl;
 
-        sort($this->param['js']);
-        sort($this->param['css']);
+        if(!empty($this->param['js']))
+            sort($this->param['js']);
+
+        if(!empty($this->param['css']))
+            sort($this->param['css']);
     }
 
     /**

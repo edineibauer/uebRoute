@@ -29,7 +29,7 @@ class Link extends Route
 
         $this->addJsTemplates();
         $this->viewAssetsUpdate($setor);
-        $this->createHeadMinify($useOldCssSyntax);
+        $this->createHeadMinify($useOldCssSyntax, $setor);
         $this->formatParam($setor, $useOldCssSyntax);
     }
 
@@ -104,41 +104,23 @@ class Link extends Route
             $script .= (!preg_match("/\.js$/i", $script) ? ".js" : "");
             $linkName = substr(\Helpers\Check::name($script),0,-3) . ".js";
 
-            if(file_exists(PATH_HOME . "node_modules/" . $script)) {
+            foreach ($rotas as $file => $dir) {
+                if ($file === $script) {
 
-                //get the url and name of file
-                if (DEV || !file_exists(PATH_HOME . "assetsPublic/{$linkName}")) {
-                    /**
-                     * Minify the content, replace variables declaration and cache the file
-                     */
-                    $minify = new \MatthiasMullie\Minify\JS(file_get_contents(PATH_HOME . "node_modules/" . $script));
-                    $minify->minify(PATH_HOME . "assetsPublic/{$linkName}");
-                }
-
-                /**
-                 * Update head value with the cached minify css
-                 */
-                $this->param['js'][] = HOME . "assetsPublic/{$linkName}?v=" . VERSION;
-
-            } else {
-                foreach ($rotas as $file => $dir) {
-                    if ($file === $script) {
-
-                        //get the url and name of file
-                        if (DEV || !file_exists(PATH_HOME . "assetsPublic/{$linkName}")) {
-                            /**
-                             * Minify the content, replace variables declaration and cache the file
-                             */
-                            $minify = new \MatthiasMullie\Minify\JS(file_get_contents($dir));
-                            $minify->minify(PATH_HOME . "assetsPublic/{$linkName}");
-                        }
-
+                    //get the url and name of file
+                    if (DEV || !file_exists(PATH_HOME . "assetsPublic/{$linkName}")) {
                         /**
-                         * Update head value with the cached minify css
+                         * Minify the content, replace variables declaration and cache the file
                          */
-                        $this->param['js'][] = HOME . "assetsPublic/{$linkName}?v=" . VERSION;
-                        break;
+                        $minify = new \MatthiasMullie\Minify\JS(file_get_contents($dir));
+                        $minify->minify(PATH_HOME . "assetsPublic/{$linkName}");
                     }
+
+                    /**
+                     * Update head value with the cached minify css
+                     */
+                    $this->param['js'][] = HOME . "assetsPublic/{$linkName}?v=" . VERSION;
+                    break;
                 }
             }
         }
@@ -146,8 +128,10 @@ class Link extends Route
 
     /**
      * @param bool $useOldCssSyntax
+     * @param string $setor
+     * @return void
      */
-    private function createHeadMinify(bool $useOldCssSyntax = false)
+    private function createHeadMinify(bool $useOldCssSyntax = false, string $setor)
     {
         /**
          * tag head link replace variables declaration
@@ -166,12 +150,15 @@ class Link extends Route
         }
 
         /**
-         * if is a JS file to put on head, so Minify the content
+         * JS definidos no param file do view, não são processados e são colocados no Global
          */
         $rotasJs = Config::getRoutesFilesTo("assets", "js");
         if(!empty($this->param['js'])) {
             $js = $this->param['js'];
+
+            //zera param js pois irá adicionar novamente esse script na variável com a url atualizada
             $this->param['js'] = [];
+
             if(is_array($js)) {
                 foreach ($js as $i => $script) {
                     if(is_string($script))
@@ -182,11 +169,11 @@ class Link extends Route
             }
         }
 
-        /**
-         * if is a JS file pre load to put on head, so Minify the content
-         */
+        $jsPre = [];
+        if(!empty($this->getJsPre()))
+            $jsPre[] = HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".pre.min.js?v=" . VERSION;
+
         if(!empty($this->param['jsPre'])) {
-            $jsPre = [];
             if(is_array($this->param['jsPre'])) {
                 foreach ($this->param['jsPre'] as $i => $script) {
                     if(is_string($script) && !empty($script)) {
@@ -208,9 +195,9 @@ class Link extends Route
                     $jsPre[] = HOME . $fileName . "?v=" . VERSION;
                 }
             }
-
-            $this->param['jsPre'] = $jsPre;
         }
+
+        $this->param['jsPre'] = $jsPre;
 
         /**
          * tag head replace variables declaration
@@ -236,27 +223,22 @@ class Link extends Route
     {
         if($this->directory === "view") {
             /**
-             * If in DEV mode, so update JS and CSS from view
+             * If JS view not exist on minify cache folder, then create
              */
-            if (DEV) {
+            if(DEV || !file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . $this->getFile() . ".min.js"))
                 Config::createPageJs($this->getFile(), $this->getJs(), $setor);
+
+            /**
+             * If CSS view not exist on minify cache folder, then create
+             */
+            if(DEV || !file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . $this->getFile() . ".min.css"))
                 Config::createPageCss($this->getFile(), $this->getCss(), $setor);
 
-            } else {
-
-                /**
-                 * If JS view not exist on minify cache folder, then create
-                 */
-                if(!file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.js"))
-                    Config::createPageJs($this->getFile(), $this->getJs(), $setor);
-
-                /**
-                 * If CSS view not exist on minify cache folder, then create
-                 */
-                if(!file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . parent::getFile() . ".min.css"))
-                    Config::createPageCss($this->getFile(), $this->getCss(), $setor);
-
-            }
+            /**
+             * JS PRE LOAD
+             */
+            if(!empty($this->getJsPre()) && (DEV || !file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . $this->getFile() . ".pre.min.js")))
+                Config::createPageJs($this->getFile() . ".pre", $this->getJsPre(), $setor);
         }
     }
 

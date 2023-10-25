@@ -20,6 +20,7 @@ class Route
     protected $param;
     private $css = [];
     private $js = [];
+    private $jsPre = [];
     private $templates = [];
     private $variaveis;
 
@@ -74,6 +75,14 @@ class Route
     public function getJs()
     {
         return $this->js;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getJsPre()
+    {
+        return $this->jsPre;
     }
 
     /**
@@ -210,7 +219,7 @@ class Route
             if(file_exists($folderChoose . $preFolderName)) {
                 foreach (Helper::listFolder($folderChoose . $preFolderName) as $item) {
                     if(pathinfo($item, PATHINFO_EXTENSION) === "js")
-                        $this->param['jsPre'][] = str_replace(PATH_HOME, HOME, $folderChoose) . "{$preFolderName}/{$item}";
+                        $this->jsPre[] = $folderChoose . "{$preFolderName}/{$item}";
                 }
             }
         }

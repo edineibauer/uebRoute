@@ -42,7 +42,7 @@ class Link extends Route
     private function formatParam(string $setor, bool $useOldCssSyntax = false)
     {
         $nameCssFile = parent::getFile() . ($useOldCssSyntax ? ".min.old.css" : ".min.css");
-        $this->param['title'] = !empty($this->param['title']) ? $this->param['title'] : $this->getFile();
+        $this->param['title'] = $this->formatTitle(!empty($this->param['title']) ? $this->param['title'] : $this->getFile());
         $this->param['css'] = file_exists(PATH_HOME . "assetsPublic/view/{$setor}/" . $nameCssFile) ? file_get_contents(PATH_HOME . "assetsPublic/view/" . $setor . "/" . $nameCssFile) : "";
         $this->param['variaveis'] = parent::getVariaveis();
 
@@ -306,5 +306,20 @@ class Link extends Route
 
         if(!empty($this->param['css']))
             sort($this->param['css']);
+    }
+
+    /**
+     * return page title formated
+     *
+     * @param string $title
+     * @return string
+     */
+    private function formatTitle(string $title): string
+    {
+        return ucwords(str_replace(
+            ["{{sitesub}}", '{$sitesub}', "{{sitedesc}}", '{$sitedesc}', "-", "_"],
+            [SITESUB, SITESUB, SITEDESC, SITEDESC, " ", " "],
+            $title
+        ));
     }
 }

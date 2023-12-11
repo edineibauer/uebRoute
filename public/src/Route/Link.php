@@ -131,7 +131,7 @@ class Link extends Route
      * @param string $setor
      * @return void
      */
-    private function createHeadMinify(bool $useOldCssSyntax = false, string $setor)
+    private function createHeadMinify(bool $useOldCssSyntax, string $setor)
     {
         /**
          * tag head link replace variables declaration

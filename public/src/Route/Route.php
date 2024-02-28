@@ -139,7 +139,6 @@ class Route
     private function getParamBase()
     {
         return [
-            "alias" => "",
             "css" => "",
             "js" => [],
             "jsPre" => [],
@@ -179,7 +178,6 @@ class Route
 
             $f = json_decode(file_get_contents($folderChoose . $item), true);
             if(!empty($f["alias"])) {
-                $this->param['alias'] = $f["alias"];
                 $folderChoose = Config::getRouteTo($this->directory . "/" . $f["alias"], $folderChoose);
                 break;
             }

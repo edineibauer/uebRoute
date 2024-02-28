@@ -139,6 +139,7 @@ class Route
     private function getParamBase()
     {
         return [
+            "alias" => "",
             "css" => "",
             "js" => [],
             "jsPre" => [],
@@ -178,6 +179,7 @@ class Route
 
             $f = json_decode(file_get_contents($folderChoose . $item), true);
             if(!empty($f["alias"])) {
+                $this->param['alias'] = $f["alias"];
                 $folderChoose = Config::getRouteTo($this->directory . "/" . $f["alias"], $folderChoose);
                 break;
             }
@@ -198,7 +200,6 @@ class Route
                         $this->route = str_replace(PATH_HOME, "", $folderChoose . $item);
                         $this->lib = str_replace([PATH_HOME, VENDOR, "public/" . $this->directory . "/{$route}/{$setor}/", "public/" . $this->directory . "/{$route}/", "/"], "", $folderChoose);
                         $this->lib = $this->lib === "" ? DOMINIO : $this->lib;
-                        $find = !in_array($this->lib, ["config", "dashboard", "route", "cep", "dev-ui", "entity-ui", "login", "report", "email"]) && $nota > 0;
                         $findIndexNota = $nota;
                     }
 

@@ -78,34 +78,39 @@ class Link extends Route
                         /**
                          * Old version without :not support
                          */
-                        if(file_exists(PATH_HOME . "assetsPublic/appCore.min.css")) {
+                        if(!file_exists(PATH_HOME . "assetsPublic/{$linkNameOld}")) {
+                            if(file_exists(PATH_HOME . "assetsPublic/appCore.min.css")) {
 
-                            $cssAdd = "";
-                            $rootCss = file_get_contents(PATH_HOME . "assetsPublic/appCore.min.css");
-                            foreach ([":root {", ":root{"] as $rootDeclaration) {
-                                foreach (explode($rootDeclaration, $rootCss) as $i => $item) {
-                                    if($i === 0)
-                                        continue;
+                                $cssAdd = "";
+                                $rootCss = file_get_contents(PATH_HOME . "assetsPublic/appCore.min.css");
+                                foreach ([":root {", ":root{"] as $rootDeclaration) {
+                                    $exploded = explode($rootDeclaration, $rootCss);
+                                    foreach ($exploded as $i => $item) {
+                                        if ($i === 0 || substr($exploded[$i - 1], -9) === ".darkmode")
+                                            continue;
 
-                                    $rootCssStyle = explode("}", $item)[0];
-                                    $cssAdd .= ":root {" . $rootCssStyle . "}";
+                                        $cssAdd .= ":root {" . explode("}", $item)[0] . "}";
+                                    }
                                 }
+
+                                $minifyo = new \MatthiasMullie\Minify\CSS($cssAdd);
+                                $rootMinify = $minifyo->minify();
+                                $minifyo->add(Config::setPrefixToCssDefinition(Config::replaceVariablesConfig(file_get_contents($dir)), ".{$id}", true));
+                                $fo = fopen(PATH_HOME . "assetsPublic/{$linkNameOld}", "w");
+                                fwrite($fo, $minifyo->minify());
+                                fclose($fo);
+
+                                putenv('PATH='. getenv('PATH') . (PHP_OS !== "WINNT" ? ':/usr/local/bin:/opt/homebrew/bin' : ''));
+                                exec("npx postcss " . PATH_HOME . "assetsPublic/{$linkNameOld}" . " -o " . PATH_HOME . "assetsPublic/{$linkNameOld}");
+
+                                Config::createFile(PATH_HOME . "assetsPublic/{$linkNameOld}", str_replace($rootMinify, "", file_get_contents(PATH_HOME . "assetsPublic/{$linkNameOld}")));
+
+                            } else {
+                                $minifyo = new \MatthiasMullie\Minify\CSS(Config::setPrefixToCssDefinition(Config::replaceVariablesConfig(file_get_contents($dir)), ".{$id}", true));
+                                $fo = fopen(PATH_HOME . "assetsPublic/{$linkNameOld}", "w");
+                                fwrite($fo, $minifyo->minify());
+                                fclose($fo);
                             }
-
-                            $minifyo = new \MatthiasMullie\Minify\CSS($cssAdd);
-                            $minifyo->add(Config::setPrefixToCssDefinition(Config::replaceVariablesConfig(file_get_contents($dir)), ".{$id}", true));
-                            $fo = fopen(PATH_HOME . "assetsPublic/{$linkNameOld}", "w");
-                            fwrite($fo, $minifyo->minify());
-                            fclose($fo);
-
-                            putenv('PATH='. getenv('PATH') . (PHP_OS !== "WINNT" ? ':/usr/local/bin:/opt/homebrew/bin' : ''));
-                            exec("postcss " . PATH_HOME . "assetsPublic/{$linkNameOld}" . " -o " . PATH_HOME . "assetsPublic/{$linkNameOld}");
-
-                        } else {
-                            $minifyo = new \MatthiasMullie\Minify\CSS(Config::setPrefixToCssDefinition(Config::replaceVariablesConfig(file_get_contents($dir)), ".{$id}", true));
-                            $fo = fopen(PATH_HOME . "assetsPublic/{$linkNameOld}", "w");
-                            fwrite($fo, $minifyo->minify());
-                            fclose($fo);
                         }
                     }
 

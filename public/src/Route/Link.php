@@ -78,7 +78,7 @@ class Link extends Route
                         /**
                          * Old version without :not support
                          */
-                        if(file_exists(PATH_HOME . "assetsPublic/appCore.min.css") && $this->checkCommand('postcss')) {
+                        if(file_exists(PATH_HOME . "assetsPublic/appCore.min.css")) {
 
                             $cssAdd = "";
                             $rootCss = file_get_contents(PATH_HOME . "assetsPublic/appCore.min.css");
@@ -117,16 +117,6 @@ class Link extends Route
                 }
             }
         }
-    }
-
-    /**
-     * @param string $command
-     * @return bool
-     */
-    private function checkCommand(string $command): bool {
-        $checkCommand = (stripos(PHP_OS, 'WIN') === 0) ? "where $command" : "which $command";
-        exec($checkCommand, $output, $return_var);
-        return $return_var === 0;
     }
 
     /**

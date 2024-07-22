@@ -98,6 +98,7 @@ class Link extends Route
                             fwrite($fo, $minifyo->minify());
                             fclose($fo);
 
+                            putenv('PATH='. getenv('PATH') . (PHP_OS !== "WINNT" ? ':/usr/local/bin:/opt/homebrew/bin' : ''));
                             exec("postcss " . PATH_HOME . "assetsPublic/{$linkNameOld}" . " -o " . PATH_HOME . "assetsPublic/{$linkNameOld}");
 
                         } else {

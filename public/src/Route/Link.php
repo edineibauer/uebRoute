@@ -78,10 +78,34 @@ class Link extends Route
                         /**
                          * Old version without :not support
                          */
-                        $minifyo = new \MatthiasMullie\Minify\CSS(Config::setPrefixToCssDefinition(Config::replaceVariablesConfig(file_get_contents($dir)), ".{$id}", true));
-                        $fo = fopen(PATH_HOME . "assetsPublic/{$linkNameOld}", "w");
-                        fwrite($fo, $minifyo->minify());
-                        fclose($fo);
+                        if(file_exists(PATH_HOME . "assetsPublic/appCore.min.css") && $this->checkCommand('postcss')) {
+
+                            $cssAdd = "";
+                            $rootCss = file_get_contents(PATH_HOME . "assetsPublic/appCore.min.css");
+                            foreach ([":root {", ":root{"] as $rootDeclaration) {
+                                foreach (explode($rootDeclaration, $rootCss) as $i => $item) {
+                                    if($i === 0)
+                                        continue;
+
+                                    $rootCssStyle = explode("}", $item)[0];
+                                    $cssAdd .= ":root {" . $rootCssStyle . "}";
+                                }
+                            }
+
+                            $minifyo = new \MatthiasMullie\Minify\CSS($cssAdd);
+                            $minifyo->add(Config::setPrefixToCssDefinition(Config::replaceVariablesConfig(file_get_contents($dir)), ".{$id}", true));
+                            $fo = fopen(PATH_HOME . "assetsPublic/{$linkNameOld}", "w");
+                            fwrite($fo, $minifyo->minify());
+                            fclose($fo);
+
+                            exec("postcss " . PATH_HOME . "assetsPublic/{$linkNameOld}" . " -o " . PATH_HOME . "assetsPublic/{$linkNameOld}");
+
+                        } else {
+                            $minifyo = new \MatthiasMullie\Minify\CSS(Config::setPrefixToCssDefinition(Config::replaceVariablesConfig(file_get_contents($dir)), ".{$id}", true));
+                            $fo = fopen(PATH_HOME . "assetsPublic/{$linkNameOld}", "w");
+                            fwrite($fo, $minifyo->minify());
+                            fclose($fo);
+                        }
                     }
 
                     /**
@@ -92,6 +116,16 @@ class Link extends Route
                 }
             }
         }
+    }
+
+    /**
+     * @param string $command
+     * @return bool
+     */
+    private function checkCommand(string $command): bool {
+        $checkCommand = (stripos(PHP_OS, 'WIN') === 0) ? "where $command" : "which $command";
+        exec($checkCommand, $output, $return_var);
+        return $return_var === 0;
     }
 
     /**

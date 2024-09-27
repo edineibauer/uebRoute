@@ -100,9 +100,10 @@ class Link extends Route
                                 fwrite($fo, $minifyo->minify());
                                 fclose($fo);
 
-                                putenv('PATH='. getenv('PATH') . (PHP_OS !== "WINNT" ? ':/usr/local/bin:/opt/homebrew/bin' : ''));
-                                exec("npx postcss " . PATH_HOME . "assetsPublic/{$linkNameOld}" . " -o " . PATH_HOME . "assetsPublic/{$linkNameOld}");
-
+                                if(DEV) {
+                                    putenv('PATH=' . getenv('PATH') . (PHP_OS !== "WINNT" ? ':/usr/local/bin:/opt/homebrew/bin' : ''));
+                                    exec("npx postcss " . PATH_HOME . "assetsPublic/{$linkNameOld}" . " -o " . PATH_HOME . "assetsPublic/{$linkNameOld}");
+                                }
                                 Config::createFile(PATH_HOME . "assetsPublic/{$linkNameOld}", str_replace($rootMinify, "", file_get_contents(PATH_HOME . "assetsPublic/{$linkNameOld}")));
 
                             } else {
